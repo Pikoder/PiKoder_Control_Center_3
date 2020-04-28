@@ -275,6 +275,30 @@ public class PiKoderCommunicationAbstractionLayer
         }
     }
 
+    public void GetISCBaseAddress(ref string SerialInputString)
+    {
+        int iTimeOut = 0;
+        SerialInputString = "";
+        do
+        {
+            if (iConnectedTo == iPhysicalLink.iSerialLink)
+            {
+                mySerialLink.SendDataToSerial("I?");
+                SerialInputString = mySerialLink.SerialReceiver();
+            }
+            else if (iConnectedTo == iPhysicalLink.iWLANlink)
+            {
+                myWLANLink.SendDataToWLAN("I?");
+                SerialInputString = myWLANLink.Receiver();
+            }
+            iTimeOut += 1;
+        } while (!ValidateI2CBaseAddress(SerialInputString) & iTimeOut < 5);
+        if (iTimeOut == 5)
+        {
+            SerialInputString = "TimeOut";
+        }
+    }
+
     public bool SetChannelNeutral(string strNeutralVal, int iChannelNo)
     {
         string ReturnCode = "";
@@ -464,6 +488,25 @@ public class PiKoderCommunicationAbstractionLayer
         }
     }
 
+    public bool SetPiKoderI2CBaseAdress(int iI2CBaseAdress)
+    {
+        string strSendString = "";
+        if (iI2CBaseAdress < 10)
+        {
+            strSendString += "0";
+        }
+        strSendString += iI2CBaseAdress.ToString();
+        if (iConnectedTo == iPhysicalLink.iSerialLink)
+        {
+            return InterpretReturnCode(mySerialLink.SendDataToSerialwithAck("I=" + strSendString));
+        }
+        else
+        {
+            myWLANLink.SendDataToWLAN("I=" + strSendString);
+            return InterpretReturnCode(myWLANLink.Receiver());
+        }
+    }
+
     public bool SetPiKoderPPMMode(int iPPMMode)
     {
         byte[] myByteArray = { 83, 22, 0, 0 };
@@ -549,6 +592,20 @@ public class PiKoderCommunicationAbstractionLayer
         }
         int intZeroOffset = int.Parse(strVal);  // no check on chars this time
         if ((intZeroOffset < 0) | (intZeroOffset > 999))
+        {
+            return false;
+        }
+        return true;
+    }
+
+    private bool ValidateI2CBaseAddress(string strVal)
+    {
+        if (strVal == "TimeOut")
+        {
+            return false;
+        }
+        int intZeroOffset = int.Parse(strVal);  // no check on chars this time
+        if ((intZeroOffset < 0) | (intZeroOffset > 80))
         {
             return false;
         }

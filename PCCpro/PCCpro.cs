@@ -5,6 +5,7 @@ using NativeWifi;
 using System.IO.Ports;
 using System.Drawing;
 using System.Globalization;
+using System.Net.NetworkInformation;
 
 
 // This is a program for evaluating the PiKoder platform - please refer to http://pikoder.com for more details.
@@ -33,7 +34,7 @@ namespace PCCpro
 
         private PiKoderCommunicationAbstractionLayer myPCAL = new PiKoderCommunicationAbstractionLayer();
 
-        private WlanClient wlanClient;
+        private WlanClient wlanClient = new WlanClient();
 
         private bool boolErrorFlag; // global flag for errors in communication
         private bool IOSwitching = false; // SSC feature switch (implemented w/ release 2.7)
@@ -55,7 +56,6 @@ namespace PCCpro
         {
             InitializeComponent();
             boolErrorFlag = false;
-            wlanClient = new WlanClient();
             ObtainCurrentSSID();
             UpdateCOMPortList();
             AvailableCOMPorts.Select();     // set focus in view
@@ -127,10 +127,6 @@ namespace PCCpro
                 {
                     ConnectedAP.Text = "";
                 }
-                if (LogOutput)
-                {
-                    WriteLog("[ObtainCurrentSSID]: Not connected to Wlan.");
-                }
                 return;
             }
 
@@ -138,14 +134,14 @@ namespace PCCpro
             {
                 try
                 {
-                    Wlan.WlanAvailableNetwork[] networks = wlanClient.Interfaces[0].GetAvailableNetworkList((Wlan.WlanGetAvailableNetworkFlags.IncludeAllManualHiddenProfiles));
+                    Wlan.WlanAvailableNetwork[] networks = wlanClient.Interfaces[0].GetAvailableNetworkList(0);
+                    // Wlan.WlanAvailableNetwork[] networks = wlanClient.Interfaces[0].GetAvailableNetworkList((Wlan.WlanGetAvailableNetworkFlags.IncludeAllManualHiddenProfiles));
                     Wlan.Dot11Ssid ssid = networks[0].dot11Ssid;
                     string networkName = System.Text.Encoding.ASCII.GetString(ssid.SSID, 0, (int)ssid.SSIDLength);
                     if (!ConnectedAP.Text.Equals(networkName))
                     {
                         ConnectedAP.Text = networkName;
                     }
-                    return;  // get only the first one...
                 }
                 catch (Exception ex)
                 {
@@ -153,6 +149,7 @@ namespace PCCpro
                 }
             }
         }
+
 
         //****************************************************************************
         //   Function:
@@ -518,9 +515,19 @@ namespace PCCpro
 
             // clean up USB2PPM specifics
             GroupBox11.Enabled = true;     // neutral positions
-            GroupBox11.Text = "neutral";     
+            GroupBox11.Text = "neutral";
             GroupBox11.Visible = true;
  
+            // clean up PRO specifics
+            GroupBox13.Text = "PPM-Channels";
+            
+            // clean up PPM stuff
+            GroupBox13.Enabled = true;      // PPM mode
+            GroupBox13.Visible = true;
+            GroupBox17.Enabled = true;      // PPM mode
+            GroupBox17.Visible = true;
+
+
             // close port
             myPCAL.MyForm_Dispose();
 
@@ -588,8 +595,16 @@ namespace PCCpro
             GroupBox4.Visible = true;
             GroupBox7.Enabled = true;        // Save Parameters
             GroupBox7.Visible = true;
-            GroupBox13.Enabled = false;      // # PPM Channels
-            GroupBox13.Visible = false;
+            if (TypeId.Text != "SSC PRO")
+            {
+                GroupBox13.Enabled = false;      // # PPM Channels
+                GroupBox13.Visible = false;
+            }
+            else
+            {
+                GroupBox13.Text = "I2C Address";
+                GroupBox13.Enabled = true;
+            }
             GroupBox17.Enabled = false;      // PPM mode
             GroupBox17.Visible = false;
 
@@ -647,6 +662,18 @@ namespace PCCpro
                     miniSSCOffset.ForeColor = Color.Black;
                 }
             }
+
+            // retrieve PRO parameters offset
+            if (TypeId.Text == "SSC PRO")
+            {
+                myPCAL.GetISCBaseAddress(ref strChannelBuffer);
+                if (strChannelBuffer != "TimeOut")
+                {
+                    PPM_Channels.Value = int.Parse(strChannelBuffer);
+                    PPM_Channels.ForeColor = Color.Black;
+                }
+            }
+
             IndicateConnectionOk();
             bDataLoaded = true;
         }
@@ -697,6 +724,39 @@ namespace PCCpro
                         }
                     }
                     RetrievePiKoderParameters();
+                }
+            }
+        }
+
+        private void RetrieveSSC_PROParameters()
+        {
+            string strChannelBuffer = "";
+            IOSwitching = false;
+            FastChannelRetrieve = false;
+
+            if (myPCAL.LinkConnected())
+            {
+                if (!boolErrorFlag)
+                {
+                    // request status information from SSC    
+                    myPCAL.GetFirmwareVersion(ref strChannelBuffer);
+                    if (strChannelBuffer != "TimeOut")
+                    {
+                        strSSC_Firmware.Text = strChannelBuffer;
+                        if (Double.Parse(strChannelBuffer, CultureInfo.InvariantCulture) != 1.02)
+                        {
+                            MessageBox.Show("The PiKoder firmware version found is not supported! Please goto www.pikoder.com and upgrade PCC Control Center to the latest version.", "Error Message", MessageBoxButtons.OK);
+                            Application.Exit();
+                        }
+                        ProtectedSaveMode = true;
+                        FastChannelRetrieve = true;
+                        IOSwitching = true;
+                        RetrievePiKoderParameters();
+                    }
+                    else  // error message
+                    {
+                        boolErrorFlag = true;
+                    }
                 }
             }
         }
@@ -1241,33 +1301,49 @@ namespace PCCpro
 
         private void miniSSCOffset_ValueChanged(object sender, EventArgs e)
         {
-            string myStringBuffer = "";
-            if (myPCAL.LinkConnected())
+            if (bDataLoaded)
             {
-                if (miniSSCOffset.Value < 100)
+                string myStringBuffer = "";
+                if (myPCAL.LinkConnected())
                 {
-                    myStringBuffer = "0";
+                    if (miniSSCOffset.Value < 100)
+                    {
+                        myStringBuffer = "0";
+                    }
+                    if (miniSSCOffset.Value < 10)
+                    {
+                        myStringBuffer += "0";
+                    }
+                    myPCAL.SetPiKoderMiniSSCOffset(myStringBuffer + Convert.ToString(miniSSCOffset.Value));
                 }
-                if (miniSSCOffset.Value < 10)
-                {
-                    myStringBuffer += "0";
-                }
-                myPCAL.SetPiKoderMiniSSCOffset(myStringBuffer + Convert.ToString(miniSSCOffset.Value));
             }
         }
 
         private void PPM_Channels_ValueChanged(object sender, EventArgs e)
         {
-            myPCAL.SetPiKoderPPMChannels(Convert.ToInt32(PPM_Channels.Value));
+            if (bDataLoaded)
+            {
+                if (TypeId.Text != "SSC PRO")
+                {
+                    myPCAL.SetPiKoderPPMChannels(Convert.ToInt32(PPM_Channels.Value));
+                }
+                else
+                {
+                    myPCAL.SetPiKoderI2CBaseAdress(Convert.ToInt32(PPM_Channels.Value));
+                }
+            }
         }
 
         private void PPM_Mode_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (PPM_Mode.SelectedIndex >= 0)
+            if (bDataLoaded)
             {
-                myPCAL.SetPiKoderPPMMode(PPM_Mode.SelectedIndex);
+                if (PPM_Mode.SelectedIndex >= 0)
+                {
+                    myPCAL.SetPiKoderPPMMode(PPM_Mode.SelectedIndex);
+                }
+                PPM_Mode.ClearSelected();
             }
-            PPM_Mode.ClearSelected();
         }
 
         private int ScalePulseWidth(string strChannelBuffer, bool HPMath)
@@ -2067,6 +2143,12 @@ namespace PCCpro
                     DisplayFoundMessage(TypeId.Text);
                     RetrieveSSC_HPParameters();
                 }
+                else if (strPiKoderType.Contains("SSC PRO"))
+                {
+                    TypeId.Text = "SSC PRO";
+                    DisplayFoundMessage(TypeId.Text);
+                    RetrieveSSC_PROParameters();
+                }
                 else if (strPiKoderType.Contains("SSC"))
                 {
                     TypeId.Text = "SSC";
@@ -2084,19 +2166,19 @@ namespace PCCpro
                     else
                     {
                         TextBox1.Text = "Device on " + ConnectedAP.Text + " not supported";
-                    }                   
+                    }
                 }
                 ch1_HScrollBar.Enabled = true;     // show and enable sliders
                 ch1_HScrollBar.Visible = true;
-                ch2_HScrollBar.Enabled = true;     
+                ch2_HScrollBar.Enabled = true;
                 ch2_HScrollBar.Visible = true;
-                ch3_HScrollBar.Enabled = true;     
+                ch3_HScrollBar.Enabled = true;
                 ch3_HScrollBar.Visible = true;
-                ch4_HScrollBar.Enabled = true;     
+                ch4_HScrollBar.Enabled = true;
                 ch4_HScrollBar.Visible = true;
-                ch5_HScrollBar.Enabled = true;     
+                ch5_HScrollBar.Enabled = true;
                 ch5_HScrollBar.Visible = true;
-                ch6_HScrollBar.Enabled = true;     
+                ch6_HScrollBar.Enabled = true;
                 ch6_HScrollBar.Visible = true;
                 ch7_HScrollBar.Enabled = true;
                 ch7_HScrollBar.Visible = true;
@@ -2118,10 +2200,10 @@ namespace PCCpro
             }
         }
 
-        private void DisplayFoundMessage(string sPiKoderTpye)
+        private void DisplayFoundMessage(string sPiKoderType)
         {
             string myMessage = "Found ";
-            myMessage = myMessage + sPiKoderTpye + " @ ";
+            myMessage = myMessage + sPiKoderType + " @ ";
             if (ConnectCOM.Checked)
             {
                 myMessage += AvailableCOMPorts.Items[AvailableCOMPorts.TopIndex].ToString();
@@ -2306,7 +2388,7 @@ namespace PCCpro
                 {
                     myPCAL.GetPulseLength(ref strChannelBuffer, 5, HPMath);
                     if (strChannelBuffer != "TimeOut")
-                    { 
+                    {
                         ch5_HScrollBar.Value = ScalePulseWidth(strChannelBuffer, HPMath);
                         strCH_5_Current.Text = Convert.ToString(ch5_HScrollBar.Value);
                     }
@@ -2562,6 +2644,8 @@ namespace PCCpro
                 IndicateConnectionOk();
             }
         }
+        private void PCCpro_FormClosing(Object sender, FormClosingEventArgs e)
+        {
+        }
     }
 }
-
