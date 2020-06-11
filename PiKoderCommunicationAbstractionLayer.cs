@@ -299,6 +299,30 @@ public class PiKoderCommunicationAbstractionLayer
         }
     }
 
+    public void GetPPMSettings(ref string SerialInputString)
+    {
+        int iTimeOut = 0;
+        SerialInputString = "";
+        do
+        {
+            if (iConnectedTo == iPhysicalLink.iSerialLink)
+            {
+                mySerialLink.SendDataToSerial("P?");
+                SerialInputString = mySerialLink.SerialReceiver();
+            }
+            else if (iConnectedTo == iPhysicalLink.iWLANlink)
+            {
+                myWLANLink.SendDataToWLAN("P?");
+                SerialInputString = myWLANLink.Receiver();
+            }
+            iTimeOut += 1;
+        } while (!ValidatePPMSettings(SerialInputString) & iTimeOut < 5);
+        if (iTimeOut == 5)
+        {
+            SerialInputString = "TimeOut";
+        }
+    }
+
     public bool SetChannelNeutral(string strNeutralVal, int iChannelNo)
     {
         string ReturnCode = "";
@@ -567,7 +591,6 @@ public class PiKoderCommunicationAbstractionLayer
             }
             return true;
         }
-        return false;
     }
 
     private bool ValidateZeroOffset(string strVal)
@@ -597,6 +620,20 @@ public class PiKoderCommunicationAbstractionLayer
         }
         return true;
     }
+
+    private bool ValidatePPMSettings(string strVal)
+    {
+        if (strVal[0] < '0' | strVal[0] > '9')
+        {
+            return false;
+        }
+        if (strVal[1] != 'P' & strVal[1] != 'N')
+        {
+            return false;
+        }
+        return true;
+    }
+
 
     private bool ValidateI2CBaseAddress(string strVal)
     {

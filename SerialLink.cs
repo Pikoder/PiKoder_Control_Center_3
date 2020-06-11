@@ -61,12 +61,13 @@ public class SerialLink
         }
         catch (Exception ex)
         {
+#if DEBUG
             MessageBox.Show(ex.ToString());
+#endif
             _connected = false;
             return false;
         }
     }
-
 
     public string SerialReceiver ()
     {
@@ -119,7 +120,9 @@ public class SerialLink
         }
         catch (Exception ex)
         {
+#if DEBUG
             MessageBox.Show(ex.ToString());
+#endif
             _connected = false;
             return "?";
         }
@@ -133,8 +136,11 @@ public class SerialLink
         }
         catch (Exception ex)
         {
+#if DEBUG
             MessageBox.Show(ex.ToString());
+#endif
             _connected = false;
+            _serialPort.Close();
         }
     }
 
@@ -146,7 +152,9 @@ public class SerialLink
         }
         catch (Exception ex)
         {
+#if DEBUG
             MessageBox.Show(ex.ToString());
+#endif
             _connected = false;
         }
     }
@@ -160,7 +168,9 @@ public class SerialLink
         }
         catch (Exception ex)
         {
+#if DEBUG
             MessageBox.Show(ex.ToString());
+#endif
             _connected = false;
         }
     }
@@ -168,13 +178,26 @@ public class SerialLink
     // Sent a single char and retreive error message
     public bool PiKoderConnected()
     {
-        if(_connected)
+        if (_connected)
         {
-            if(SendDataToSerialwithAck("*") == "?")
+            try
             {
-                return true;
+                _serialPort.Write("*");
+                if (SerialReceiver() == "?")
+                {
+                    return true;
+                }
+                _connected = false;
+                return false;
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                MessageBox.Show(ex.ToString());
+#endif
             }
         }
+        _connected = false;
         return false;
     }
 }

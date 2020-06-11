@@ -188,35 +188,18 @@ namespace PCCpro
             string[] myCOMPorts = new string[99];  // assume we have a max of 100 COM Ports
             iBufferSelectedIndex = AvailableCOMPorts.SelectedIndex;  //buffer selection
 
-            // If the number of COM ports is different than the last time we
-            // checked, then we know that the COM ports have changed and we
-            // don't need to verify each entry.
-            if (AvailableCOMPorts.Items.Count == SerialPort.GetPortNames().Length)
+            foreach (string s in SerialPort.GetPortNames())     // check all entries
             {
-                // Search the entire SerialPort object.  Look at COM port name
-                //   returned and see if it already exists in the list.
-                foreach (string s in SerialPort.GetPortNames())
+                foundDifferenceHere = true;
+                for (k = 0; k < AvailableCOMPorts.Items.Count; k++)
                 {
-                    // If any of the names have changed then we need to update the list
-                    k = 0;
-                    foundDifferenceHere = true;
-                    for (k = 0; k < SerialPort.GetPortNames().Length; k++)
+                    if (AvailableCOMPorts.Items[k].Equals(s))
                     {
-                        if (AvailableCOMPorts.Items[k].Equals(s))
-                        {
-                            foundDifferenceHere = false;
-                        }
+                        foundDifferenceHere = false;
                     }
-                    i += 1;
-                    foundDifference = foundDifference || foundDifferenceHere;
                 }
+                foundDifference = foundDifference || foundDifferenceHere;
             }
-            else
-            {
-                foundDifference = true;
-            }
-
-            // If nothing has changed, exit the function.
             if (!foundDifference)
             {
                 return;
@@ -228,7 +211,6 @@ namespace PCCpro
             {
                 myCOMPorts[i] = "";
             }
-
             // Connection setup - check for ports and display result
             foreach (string sp in SerialPort.GetPortNames())
             {
@@ -2297,7 +2279,7 @@ namespace PCCpro
                     if (strChannelBuffer != "TimeOut")
                     {
                         strSSC_Firmware.Text = strChannelBuffer;
-                        if (Double.Parse(strChannelBuffer, CultureInfo.InvariantCulture) > 2.01)
+                        if (Double.Parse(strChannelBuffer, CultureInfo.InvariantCulture) > 2.02)
                         {
                             MessageBox.Show("The PiKoder firmware version found is not supported! Please goto www.pikoder.com and upgrade PCC Control Center to the latest version.", "Error Message", MessageBoxButtons.OK);
                             Application.Exit();
@@ -2635,11 +2617,33 @@ namespace PCCpro
                 GroupBox4.Enabled = false;       // zero offset
                 GroupBox4.Visible = false;
 
-                PPM_Channels.Value = 8;
-                PPM_Channels.ForeColor = Color.Black;
                 PPM_Mode.Items.Add("positive");
                 PPM_Mode.Items.Add("negative (Futaba)");
+
+                if (!boolErrorFlag)
+                {   // retrieve neutral value
+                    myPCAL.GetPPMSettings(ref strChannelBuffer);
+                    if (strChannelBuffer != "TimeOut")
+                    {
+                        PPM_Channels.Value = strChannelBuffer[0] - '0';
+                        if (strChannelBuffer[1] == 'P')
+                        {
+                            PPM_Mode.SelectedIndex = 0;
+                        }
+                        else
+                        {
+                            PPM_Mode.SelectedIndex = 1;
+                        }
+                    }
+                    else
+                    {
+                        boolErrorFlag = true;
+                    }
+                }
+
+                PPM_Channels.ForeColor = Color.Black;
                 PPM_Mode.ForeColor = Color.Black;
+                PPM_Mode.ClearSelected();
                 bDataLoaded = true;
                 IndicateConnectionOk();
             }
