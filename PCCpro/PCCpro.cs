@@ -2279,7 +2279,7 @@ namespace PCCpro
                     if (strChannelBuffer != "TimeOut")
                     {
                         strSSC_Firmware.Text = strChannelBuffer;
-                        if (Double.Parse(strChannelBuffer, CultureInfo.InvariantCulture) > 2.02)
+                        if (Double.Parse(strChannelBuffer, CultureInfo.InvariantCulture) > 2.03)
                         {
                             MessageBox.Show("The PiKoder firmware version found is not supported! Please goto www.pikoder.com and upgrade PCC Control Center to the latest version.", "Error Message", MessageBoxButtons.OK);
                             Application.Exit();
