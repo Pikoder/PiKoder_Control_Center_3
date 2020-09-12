@@ -416,6 +416,8 @@ namespace PCCpro
             strCH_7_Current.Text = "";
             strCH_8_Current.Text = "";
 
+            espFW.Text = "";
+
             ch1_HScrollBar.Enabled = false;     // hide and disable sliders
             ch1_HScrollBar.Visible = false;
             ch2_HScrollBar.Enabled = false;
@@ -587,7 +589,8 @@ namespace PCCpro
                 GroupBox13.Text = "I2C Address";
                 GroupBox13.Enabled = true;
             }
-            GroupBox17.Enabled = false;      // PPM mode
+            GroupBox17.Enabled = false;    
+            // PPM mode
             GroupBox17.Visible = false;
 
             // retrieve channel settings
@@ -2248,6 +2251,11 @@ namespace PCCpro
                     if (boolErrorFlag)
                     {
                         ConnectWLAN.Checked = false;
+                    } else
+                    {
+                        string vString = "";
+                        myPCAL.GetESPFirmwareVersion(ref vString);
+                        espFW.Text = vString;
                     }
                 }
             }

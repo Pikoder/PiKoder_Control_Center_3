@@ -101,17 +101,25 @@ public class WLANLink
             try
             {
                 byte[] rcvbytes = receivingClient.Receive(ref endPoint);    // Receive incoming bytes
-                if ((rcvbytes[0] != 0xD) & (rcvbytes[0] != 0xA))
+                if (Buffer.ByteLength(rcvbytes) > 1)    // receive strings from ESP
                 {
-                    myMessage = myMessage + System.Text.Encoding.ASCII.GetString(rcvbytes); // Convert bytes back to string
-                    messageStarted = true;
+                    myMessage = System.Text.Encoding.ASCII.GetString(rcvbytes);
+                    Receiving = false;
                 }
-                else if (messageStarted)
+                else
                 {
-                    eomDetect = eomDetect - 1;
-                    if (eomDetect == 0)
+                    if ((rcvbytes[0] != 0xD) & (rcvbytes[0] != 0xA))
                     {
-                        Receiving = false;
+                        myMessage = myMessage + System.Text.Encoding.ASCII.GetString(rcvbytes); // Convert bytes back to string
+                        messageStarted = true;
+                    }
+                    else if (messageStarted)
+                    {
+                        eomDetect = eomDetect - 1;
+                        if (eomDetect == 0)
+                        {
+                            Receiving = false;
+                        }
                     }
                 }
             }

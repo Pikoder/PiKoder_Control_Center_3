@@ -200,6 +200,23 @@ public class PiKoderCommunicationAbstractionLayer
         } while (SerialInputString == "TimeOut" & iTimeOut < 5);
     }
 
+    public void GetESPFirmwareVersion(ref string SerialInputString)
+    {
+        int iTimeOut = 0;
+        do
+        {
+            if (iConnectedTo == iPhysicalLink.iSerialLink)
+            {
+            }
+            else if (iConnectedTo == iPhysicalLink.iWLANlink)
+            {
+                myWLANLink.SendDataToWLAN("$");
+                SerialInputString = myWLANLink.Receiver();
+            }
+            iTimeOut += 1;
+        } while (SerialInputString == "TimeOut" & iTimeOut < 5);
+    }
+
     public void GetStatusRecord(ref string SerialInputString)
     {
         int iTimeOut = 0;
