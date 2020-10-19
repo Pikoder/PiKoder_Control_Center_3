@@ -511,6 +511,14 @@ namespace PCCpro
             GroupBox17.Enabled = true;      // PPM mode
             GroupBox17.Visible = true;
 
+            // clean up SSCe stuff
+            GroupBox4.Enabled = true;      // Time Out
+            GroupBox4.Visible = true;
+            GroupBox7.Enabled = true;      // miniSSC offset
+            GroupBox7.Visible = true;
+            GroupBox8.Enabled = true;      // Safe
+            GroupBox8.Visible = true;
+
 
             // close port
             myPCAL.MyForm_Dispose();
@@ -593,6 +601,19 @@ namespace PCCpro
             // PPM mode
             GroupBox17.Visible = false;
 
+            if (TypeId.Text.Contains("SSCe"))
+            {
+                GroupBox4.Enabled = false;      // Time Out
+                GroupBox4.Visible = false;
+                if (TypeId.Text.Contains("(free)"))
+                {
+                    GroupBox7.Enabled = false;      // Safe
+                    GroupBox7.Visible = false;
+                    GroupBox8.Enabled = false;      // miniSSC
+                    GroupBox8.Visible = false;
+                }
+            }
+
             // retrieve channel settings
             RetrieveChannel1Information(HPMath);
             frmOuter.Invalidate();
@@ -627,38 +648,47 @@ namespace PCCpro
             Refresh();
 
             // retrieve TimeOut
-            if (!boolErrorFlag)
+            if (TypeId.Text.Contains("SSCe"))
             {
-                myPCAL.GetTimeOut(ref strChannelBuffer);
-                if (strChannelBuffer != "TimeOut")
+            } else {
+                if (!boolErrorFlag)
                 {
-                    TimeOut.Value = int.Parse(strChannelBuffer);
-                    TimeOut.ForeColor = Color.Black;
+                    myPCAL.GetTimeOut(ref strChannelBuffer);
+                    if (strChannelBuffer != "TimeOut")
+                    {
+                        TimeOut.Value = int.Parse(strChannelBuffer);
+                        TimeOut.ForeColor = Color.Black;
+                    }
                 }
             }
 
             // retrieve miniSSC offset
-            if (!boolErrorFlag)
+            if (TypeId.Text.Contains("SSCe (free)"))
             {
-                myPCAL.GetMiniSSCOffset(ref strChannelBuffer);
-                if (strChannelBuffer != "TimeOut")
+            } 
+            else
+            {
+                if (!boolErrorFlag)
                 {
-                    miniSSCOffset.Value = int.Parse(strChannelBuffer);
-                    miniSSCOffset.ForeColor = Color.Black;
+                    myPCAL.GetMiniSSCOffset(ref strChannelBuffer);
+                    if (strChannelBuffer != "TimeOut")
+                    {
+                        miniSSCOffset.Value = int.Parse(strChannelBuffer);
+                        miniSSCOffset.ForeColor = Color.Black;
+                    }
+                }
+
+                // retrieve PRO parameters offset
+                if (TypeId.Text == "SSC PRO")
+                {
+                    myPCAL.GetISCBaseAddress(ref strChannelBuffer);
+                    if (strChannelBuffer != "TimeOut")
+                    {
+                        PPM_Channels.Value = int.Parse(strChannelBuffer);
+                        PPM_Channels.ForeColor = Color.Black;
+                    }
                 }
             }
-
-            // retrieve PRO parameters offset
-            if (TypeId.Text == "SSC PRO")
-            {
-                myPCAL.GetISCBaseAddress(ref strChannelBuffer);
-                if (strChannelBuffer != "TimeOut")
-                {
-                    PPM_Channels.Value = int.Parse(strChannelBuffer);
-                    PPM_Channels.ForeColor = Color.Black;
-                }
-            }
-
             IndicateConnectionOk();
             bDataLoaded = true;
         }
@@ -678,7 +708,7 @@ namespace PCCpro
                     if (strChannelBuffer != "TimeOut")
                     {
                         strSSC_Firmware.Text = strChannelBuffer;
-                        if (Double.Parse(strChannelBuffer, CultureInfo.InvariantCulture) > 2.09)
+                        if (Double.Parse(strChannelBuffer, CultureInfo.InvariantCulture) > 3.00)
                         {
                             MessageBox.Show("The PiKoder firmware version found is not supported! Please goto www.pikoder.com and upgrade PCC Control Center to the latest version.", "Error Message", MessageBoxButtons.OK);
                             Application.Exit();
@@ -707,6 +737,74 @@ namespace PCCpro
                         {
                             boolErrorFlag = true;
                         }
+                    }
+                    RetrievePiKoderParameters();
+                }
+            }
+        }
+        
+        private void RetrieveSSCeParameters()
+        {
+            string strChannelBuffer = "";
+            IOSwitching = false;
+            FastChannelRetrieve = false;
+
+            if (myPCAL.LinkConnected())
+            {
+                if (!boolErrorFlag)
+                {
+                    // request status information from SSC    
+                    myPCAL.GetFirmwareVersion(ref strChannelBuffer);
+                    if (strChannelBuffer != "TimeOut")
+                    {
+                        strSSC_Firmware.Text = strChannelBuffer;
+                        if (Double.Parse(strChannelBuffer, CultureInfo.InvariantCulture) > 1.00)
+                        {
+                            MessageBox.Show("The PiKoder firmware version found is not supported! Please goto www.pikoder.com and upgrade PCC Control Center to the latest version.", "Error Message", MessageBoxButtons.OK);
+                            Application.Exit();
+                        }
+                        else if (Double.Parse(strChannelBuffer, CultureInfo.InvariantCulture) == 1.00)
+                        {
+                            ProtectedSaveMode = true;
+                            FastChannelRetrieve = true;
+                            IOSwitching = true;
+                        }
+                        else  // error message
+                        {
+                            boolErrorFlag = true;
+                        }
+                    }
+                    RetrievePiKoderParameters();
+                }
+            }
+        }
+
+        private void RetrieveSSCeDEMOParameters()
+        {
+            string strChannelBuffer = "";
+            IOSwitching = false;
+            FastChannelRetrieve = false;
+
+            if (myPCAL.LinkConnected())
+            {
+                if (!boolErrorFlag)
+                {
+                    // request status information from SSC    
+                    myPCAL.GetFirmwareVersion(ref strChannelBuffer);
+                    if (Double.Parse(strChannelBuffer, CultureInfo.InvariantCulture) > 1.00)
+                    {
+                        MessageBox.Show("The PiKoder firmware version found is not supported! Please goto www.pikoder.com and upgrade PCC Control Center to the latest version.", "Error Message", MessageBoxButtons.OK);
+                        Application.Exit();
+                    }
+                    else if (Double.Parse(strChannelBuffer, CultureInfo.InvariantCulture) == 1.00)
+                    {
+                        ProtectedSaveMode = true;
+                        FastChannelRetrieve = true;
+                        IOSwitching = true;
+                    }
+                    else  // error message
+                    {
+                            boolErrorFlag = true;
                     }
                     RetrievePiKoderParameters();
                 }
@@ -2133,6 +2231,18 @@ namespace PCCpro
                     TypeId.Text = "SSC PRO";
                     DisplayFoundMessage(TypeId.Text);
                     RetrieveSSC_PROParameters();
+                }
+                else if (strPiKoderType.Contains("SSCe (free)"))
+                {
+                    TypeId.Text = "SSCe (free)";
+                    DisplayFoundMessage(TypeId.Text);
+                    RetrieveSSCeDEMOParameters();
+                }
+                else if (strPiKoderType.Contains("SSCe"))
+                {
+                    TypeId.Text = "SSCe";
+                    DisplayFoundMessage(TypeId.Text);
+                    RetrieveSSCeParameters();
                 }
                 else if (strPiKoderType.Contains("SSC"))
                 {
