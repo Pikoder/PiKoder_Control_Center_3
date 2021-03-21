@@ -44,11 +44,14 @@ namespace PCCpro
         private bool bDataLoaded = false; // flag to avoid data updates while uploading data from Pikoder
 
         private string strPiKoderType = ""; // PiKoder type we are currently connected to
+        private string myMessage = ""; // used for error messages while connecting
+        private int PPMmode;
 
         /* rework needed regarding migration of USB2PPM */
         private int iDefaultMinValue = 1000; // default values for USB2PMM
         private int iDefaultMaxValue = 2000;
         private bool bUART2PPM_StartUpValues = false;
+        private bool PPMModeLegacy = true;
 
         private int[] iChannelSetting = new int[9]; // contains the current output type (would be 1 for P(WM) and 2 for S(witch)
 
@@ -405,6 +408,7 @@ namespace PCCpro
             HPMath = false;
             bDataLoaded = false;
             bUART2PPM_StartUpValues = false;
+            PPMModeLegacy = true;
 
             // delete text fields
             strCH_1_Current.Text = "";
@@ -501,10 +505,10 @@ namespace PCCpro
             GroupBox11.Enabled = true;     // neutral positions
             GroupBox11.Text = "neutral";
             GroupBox11.Visible = true;
- 
+
             // clean up PRO specifics
             GroupBox13.Text = "PPM-Channels";
-            
+
             // clean up PPM stuff
             GroupBox13.Enabled = true;      // PPM mode
             GroupBox13.Visible = true;
@@ -597,7 +601,7 @@ namespace PCCpro
                 GroupBox13.Text = "I2C Address";
                 GroupBox13.Enabled = true;
             }
-            GroupBox17.Enabled = false;    
+            GroupBox17.Enabled = false;
             // PPM mode
             GroupBox17.Visible = false;
 
@@ -665,7 +669,7 @@ namespace PCCpro
             // retrieve miniSSC offset
             if (TypeId.Text.Contains("SSCe (free)"))
             {
-            } 
+            }
             else
             {
                 if (!boolErrorFlag)
@@ -742,7 +746,7 @@ namespace PCCpro
                 }
             }
         }
-        
+
         private void RetrieveSSCeParameters()
         {
             string strChannelBuffer = "";
@@ -804,7 +808,7 @@ namespace PCCpro
                     }
                     else  // error message
                     {
-                            boolErrorFlag = true;
+                        boolErrorFlag = true;
                     }
                     RetrievePiKoderParameters();
                 }
@@ -1408,7 +1412,18 @@ namespace PCCpro
             {
                 if (TypeId.Text != "SSC PRO")
                 {
-                    myPCAL.SetPiKoderPPMChannels(Convert.ToInt32(PPM_Channels.Value));
+                    if (Convert.ToInt32(PPM_Channels.Value) < 1)
+                    {
+                        PPM_Channels.Value = 1;
+                    }
+                    else if (Convert.ToInt32(PPM_Channels.Value) > 8)
+                    {
+                        PPM_Channels.Value = 8;
+                    }
+                    else
+                    {
+                        myPCAL.SetPiKoderPPMSettings(Convert.ToInt32(PPM_Channels.Value), PPMmode);
+                    }
                 }
                 else
                 {
@@ -1423,9 +1438,10 @@ namespace PCCpro
             {
                 if (PPM_Mode.SelectedIndex >= 0)
                 {
-                    myPCAL.SetPiKoderPPMMode(PPM_Mode.SelectedIndex);
+                    myPCAL.SetPiKoderPPMSettings(Convert.ToInt32(PPM_Channels.Value), PPM_Mode.SelectedIndex);
+                    PPMmode = PPM_Mode.SelectedIndex;
+                    PPM_Mode.ClearSelected();
                 }
-                PPM_Mode.ClearSelected();
             }
         }
 
@@ -2256,11 +2272,11 @@ namespace PCCpro
                     boolErrorFlag = true;
                     if (iLinkType == PiKoderCommunicationAbstractionLayer.iPhysicalLink.iSerialLink)
                     {
-                        TextBox1.Text = "Device on " + AvailableCOMPorts.Items[AvailableCOMPorts.TopIndex].ToString() + " not supported";
+                        myMessage = "Device on " + AvailableCOMPorts.Items[AvailableCOMPorts.TopIndex].ToString() + " not supported";
                     }
                     else
                     {
-                        TextBox1.Text = "Device on " + ConnectedAP.Text + " not supported";
+                        myMessage = "Device on " + ConnectedAP.Text + " not supported";
                     }
                 }
                 ch1_HScrollBar.Enabled = true;     // show and enable sliders
@@ -2327,12 +2343,7 @@ namespace PCCpro
             else
             {
                 myPCAL.DisconnectLink(PiKoderCommunicationAbstractionLayer.iPhysicalLink.iSerialLink);
-                string myMessage;
-                if (boolErrorFlag)
-                {
-                    myMessage = "Device on " + AvailableCOMPorts.Items[AvailableCOMPorts.TopIndex].ToString() + " not supported";
-                }
-                else
+                if (!boolErrorFlag) // just a simple disconnect, no error...
                 {
                     myMessage = TypeId.Text + "@" + AvailableCOMPorts.Items[AvailableCOMPorts.TopIndex].ToString() + " disconnected";
                 }
@@ -2402,6 +2413,12 @@ namespace PCCpro
                             MessageBox.Show("The PiKoder firmware version found is not supported! Please goto www.pikoder.com and upgrade PCC Control Center to the latest version.", "Error Message", MessageBoxButtons.OK);
                             Application.Exit();
                         }
+                        else if (Double.Parse(strChannelBuffer, CultureInfo.InvariantCulture) > 2.02)
+                        {
+                            PPMModeLegacy = false;
+                            bUART2PPM_StartUpValues = true;
+                            ProtectedSaveMode = true;
+                        }
                         else if (Double.Parse(strChannelBuffer, CultureInfo.InvariantCulture) > 2.00)
                         {
                             bUART2PPM_StartUpValues = true;
@@ -2438,7 +2455,29 @@ namespace PCCpro
                     }
                     else
                     {
-                        boolErrorFlag = true;
+                        DialogResult dr = MessageBox.Show(
+                                "Unable to retrieve valid channel 1 pulse length. Load factory default value?", "USB2PPM Parameter Error",
+                                MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+                        if (dr == DialogResult.Yes)
+                        {
+                            if (myPCAL.SetChannelPulseLength(1, "1500"))
+                            {
+                                ch1_HScrollBar.Value = 1500;
+                                strCH_1_Current.Text = "1500";
+                            }
+                            else
+                            {
+                                dr = MessageBox.Show(
+                                        "Unable to correct channel 1 pulse length. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
+                                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                boolErrorFlag = true;
+                                myMessage = "Unable to retrieve valid channel 1 pulse length";
+                            }
+                        } else
+                        {
+                            boolErrorFlag = true;
+                            myMessage = "Unable to retrieve valid channel 1 pulse length";
+                        }
                     }
                 }
 
@@ -2452,7 +2491,30 @@ namespace PCCpro
                     }
                     else
                     {
-                        boolErrorFlag = true;
+                        DialogResult dr = MessageBox.Show(
+                                "Unable to retrieve valid channel 2 pulse length. Load factory default value?", "USB2PPM Parameter Error",
+                                MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+                        if (dr == DialogResult.Yes)
+                        {
+                            if (myPCAL.SetChannelPulseLength(2, "1500"))
+                            {
+                                ch2_HScrollBar.Value = 1500;
+                                strCH_2_Current.Text = "1500";
+                            }
+                            else
+                            {
+                                dr = MessageBox.Show(
+                                        "Unable to correct channel 2 pulse length. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
+                                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                boolErrorFlag = true;
+                                myMessage = "Unable to retrieve valid channel 2 pulse length";
+                            }
+                        }
+                        else
+                        {
+                            boolErrorFlag = true;
+                            myMessage = "Unable to retrieve valid channel 2 pulse length";
+                        }
                     }
                 }
 
@@ -2466,7 +2528,30 @@ namespace PCCpro
                     }
                     else
                     {
-                        boolErrorFlag = true;
+                        DialogResult dr = MessageBox.Show(
+                                "Unable to retrieve valid channel 3 pulse length. Load factory default value?", "USB2PPM Parameter Error",
+                                MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+                        if (dr == DialogResult.Yes)
+                        {
+                            if (myPCAL.SetChannelPulseLength(3, "1500"))
+                            {
+                                ch3_HScrollBar.Value = 1500;
+                                strCH_3_Current.Text = "1500";
+                            }
+                            else
+                            {
+                                dr = MessageBox.Show(
+                                        "Unable to correct channel 3 pulse length. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
+                                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                boolErrorFlag = true;
+                                myMessage = "Unable to retrieve valid channel 3 pulse length";
+                            }
+                        }
+                        else
+                        {
+                            boolErrorFlag = true;
+                            myMessage = "Unable to retrieve valid channel 3 pulse length";
+                        }
                     }
                 }
 
@@ -2480,7 +2565,30 @@ namespace PCCpro
                     }
                     else
                     {
-                        boolErrorFlag = true;
+                        DialogResult dr = MessageBox.Show(
+                                "Unable to retrieve valid channel 4 pulse length. Load factory default value?", "USB2PPM Parameter Error",
+                                MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+                        if (dr == DialogResult.Yes)
+                        {
+                            if (myPCAL.SetChannelPulseLength(4, "1500"))
+                            {
+                                ch4_HScrollBar.Value = 1500;
+                                strCH_4_Current.Text = "1500";
+                            }
+                            else
+                            {
+                                dr = MessageBox.Show(
+                                        "Unable to correct channel 4 pulse length. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
+                                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                boolErrorFlag = true;
+                                myMessage = "Unable to retrieve valid channel 4 pulse length";
+                            }
+                        }
+                        else
+                        {
+                            boolErrorFlag = true;
+                            myMessage = "Unable to retrieve valid channel 4 pulse length";
+                        }
                     }
                 }
 
@@ -2494,7 +2602,30 @@ namespace PCCpro
                     }
                     else
                     {
-                        boolErrorFlag = true;
+                        DialogResult dr = MessageBox.Show(
+                                "Unable to retrieve valid channel 5 pulse length. Load factory default value?", "USB2PPM Parameter Error",
+                                MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+                        if (dr == DialogResult.Yes)
+                        {
+                            if (myPCAL.SetChannelPulseLength(5, "1500"))
+                            {
+                                ch5_HScrollBar.Value = 1500;
+                                strCH_5_Current.Text = "1500";
+                            }
+                            else
+                            {
+                                dr = MessageBox.Show(
+                                        "Unable to correct channel 5 pulse length. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
+                                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                boolErrorFlag = true;
+                                myMessage = "Unable to retrieve valid channel 5 pulse length";
+                            }
+                        }
+                        else
+                        {
+                            boolErrorFlag = true;
+                            myMessage = "Unable to retrieve valid channel 5 pulse length";
+                        }
                     }
                 }
 
@@ -2508,7 +2639,30 @@ namespace PCCpro
                     }
                     else
                     {
-                        boolErrorFlag = true;
+                        DialogResult dr = MessageBox.Show(
+                                "Unable to retrieve valid channel 6 pulse length. Load factory default value?", "USB2PPM Parameter Error",
+                                MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+                        if (dr == DialogResult.Yes)
+                        {
+                            if (myPCAL.SetChannelPulseLength(6, "1500"))
+                            {
+                                ch6_HScrollBar.Value = 1500;
+                                strCH_6_Current.Text = "1500";
+                            }
+                            else
+                            {
+                                dr = MessageBox.Show(
+                                        "Unable to correct channel 6 pulse length. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
+                                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                boolErrorFlag = true;
+                                myMessage = "Unable to retrieve valid channel 6 pulse length";
+                            }
+                        }
+                        else
+                        {
+                            boolErrorFlag = true;
+                            myMessage = "Unable to retrieve valid channel 6 pulse length";
+                        }
                     }
                 }
 
@@ -2522,7 +2676,30 @@ namespace PCCpro
                     }
                     else
                     {
-                        boolErrorFlag = true;
+                        DialogResult dr = MessageBox.Show(
+                                "Unable to retrieve valid channel 7 pulse length. Load factory default value?", "USB2PPM Parameter Error",
+                                MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+                        if (dr == DialogResult.Yes)
+                        {
+                            if (myPCAL.SetChannelPulseLength(7, "1500"))
+                            {
+                                ch7_HScrollBar.Value = 1500;
+                                strCH_7_Current.Text = "1500";
+                            }
+                            else
+                            {
+                                dr = MessageBox.Show(
+                                        "Unable to correct channel 7 pulse length. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
+                                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                boolErrorFlag = true;
+                                myMessage = "Unable to retrieve valid channel 7 pulse length";
+                            }
+                        }
+                        else
+                        {
+                            boolErrorFlag = true;
+                            myMessage = "Unable to retrieve valid channel 7 pulse length";
+                        }
                     }
                 }
 
@@ -2536,7 +2713,30 @@ namespace PCCpro
                     }
                     else
                     {
-                        boolErrorFlag = true;
+                        DialogResult dr = MessageBox.Show(
+                                "Unable to retrieve valid channel 8 pulse length. Load factory default value?", "USB2PPM Parameter Error",
+                                MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+                        if (dr == DialogResult.Yes)
+                        {
+                            if (myPCAL.SetChannelPulseLength(8, "1500"))
+                            {
+                                ch8_HScrollBar.Value = 1500;
+                                strCH_8_Current.Text = "1500";
+                            }
+                            else
+                            {
+                                dr = MessageBox.Show(
+                                        "Unable to correct channel 8 pulse length. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
+                                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                boolErrorFlag = true;
+                                myMessage = "Unable to retrieve valid channel 8 pulse length";
+                            }
+                        }
+                        else
+                        {
+                            boolErrorFlag = true;
+                            myMessage = "Unable to retrieve valid channel 8 pulse length";
+                        }
                     }
                 }
 
@@ -2635,9 +2835,33 @@ namespace PCCpro
                         }
                         else
                         {
-                            boolErrorFlag = true;
+                            DialogResult dr = MessageBox.Show(
+                                    "Unable to retrieve valid channel 1 startup value. Load factory default value?", "USB2PPM Parameter Error",
+                                    MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+                            if (dr == DialogResult.Yes)
+                            {
+                                if (myPCAL.SetChannelNeutral("1500", 1))
+                                {
+                                    strCH_1_Neutral.Value = 1500;
+                                    strCH_1_Neutral.ForeColor = Color.Black;
+                                }
+                                else
+                                {
+                                    dr = MessageBox.Show(
+                                            "Unable to correct channel 1 startup value. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
+                                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    boolErrorFlag = true;
+                                    myMessage = "Unable to retrieve valid channel 1 startup value";
+                                }
+                            }
+                            else
+                            {
+                                boolErrorFlag = true;
+                                myMessage = "Unable to retrieve valid channel 1 startup value";
+                            }
                         }
                     }
+
                     if (!boolErrorFlag)
                     {   // retrieve neutral value
                         myPCAL.GetNeutralPosition(ref strChannelBuffer, 2, HPMath);
@@ -2648,9 +2872,33 @@ namespace PCCpro
                         }
                         else
                         {
-                            boolErrorFlag = true;
+                            DialogResult dr = MessageBox.Show(
+                                    "Unable to retrieve valid channel 2 startup value. Load factory default value?", "USB2PPM Parameter Error",
+                                    MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+                            if (dr == DialogResult.Yes)
+                            {
+                                if (myPCAL.SetChannelNeutral("1500", 2))
+                                {
+                                    strCH_2_Neutral.Value = 1500;
+                                    strCH_2_Neutral.ForeColor = Color.Black;
+                                }
+                                else
+                                {
+                                    dr = MessageBox.Show(
+                                            "Unable to correct channel 2 startup value. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
+                                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    boolErrorFlag = true;
+                                    myMessage = "Unable to retrieve valid channel 2 startup value";
+                                }
+                            }
+                            else
+                            {
+                                boolErrorFlag = true;
+                                myMessage = "Unable to retrieve valid channel 2 startup value";
+                            }
                         }
                     }
+
                     if (!boolErrorFlag)
                     {   // retrieve neutral value
                         myPCAL.GetNeutralPosition(ref strChannelBuffer, 3, HPMath);
@@ -2661,9 +2909,33 @@ namespace PCCpro
                         }
                         else
                         {
-                            boolErrorFlag = true;
+                            DialogResult dr = MessageBox.Show(
+                                    "Unable to retrieve valid channel 3 startup value. Load factory default value?", "USB2PPM Parameter Error",
+                                    MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+                            if (dr == DialogResult.Yes)
+                            {
+                                if (myPCAL.SetChannelNeutral("1500", 3))
+                                {
+                                    strCH_3_Neutral.Value = 1500;
+                                    strCH_3_Neutral.ForeColor = Color.Black;
+                                }
+                                else
+                                {
+                                    dr = MessageBox.Show(
+                                            "Unable to correct channel 3 startup value. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
+                                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    boolErrorFlag = true;
+                                    myMessage = "Unable to retrieve valid channel 3 startup value";
+                                }
+                            }
+                            else
+                            {
+                                boolErrorFlag = true;
+                                myMessage = "Unable to retrieve valid channel 3 startup value";
+                            }
                         }
                     }
+
                     if (!boolErrorFlag)
                     {   // retrieve neutral value
                         myPCAL.GetNeutralPosition(ref strChannelBuffer, 4, HPMath);
@@ -2674,9 +2946,33 @@ namespace PCCpro
                         }
                         else
                         {
-                            boolErrorFlag = true;
+                            DialogResult dr = MessageBox.Show(
+                                    "Unable to retrieve valid channel 4 startup value. Load factory default value?", "USB2PPM Parameter Error",
+                                    MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+                            if (dr == DialogResult.Yes)
+                            {
+                                if (myPCAL.SetChannelNeutral("1500", 4))
+                                {
+                                    strCH_4_Neutral.Value = 1500;
+                                    strCH_4_Neutral.ForeColor = Color.Black;
+                                }
+                                else
+                                {
+                                    dr = MessageBox.Show(
+                                            "Unable to correct channel 4 startup value. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
+                                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    boolErrorFlag = true;
+                                    myMessage = "Unable to retrieve valid channel 4 startup value";
+                                }
+                            }
+                            else
+                            {
+                                boolErrorFlag = true;
+                                myMessage = "Unable to retrieve valid channel 4 startup value";
+                            }
                         }
                     }
+
                     if (!boolErrorFlag)
                     {   // retrieve neutral value
                         myPCAL.GetNeutralPosition(ref strChannelBuffer, 5, HPMath);
@@ -2687,9 +2983,33 @@ namespace PCCpro
                         }
                         else
                         {
-                            boolErrorFlag = true;
+                            DialogResult dr = MessageBox.Show(
+                                    "Unable to retrieve valid channel 5 startup value. Load factory default value?", "USB2PPM Parameter Error",
+                                    MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+                            if (dr == DialogResult.Yes)
+                            {
+                                if (myPCAL.SetChannelNeutral("1500", 5))
+                                {
+                                    strCH_5_Neutral.Value = 1500;
+                                    strCH_5_Neutral.ForeColor = Color.Black;
+                                }
+                                else
+                                {
+                                    dr = MessageBox.Show(
+                                            "Unable to correct channel 5 startup value. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
+                                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    boolErrorFlag = true;
+                                    myMessage = "Unable to retrieve valid channel 5 startup value";
+                                }
+                            }
+                            else
+                            {
+                                boolErrorFlag = true;
+                                myMessage = "Unable to retrieve valid channel 5 startup value";
+                            }
                         }
                     }
+
                     if (!boolErrorFlag)
                     {   // retrieve neutral value
                         myPCAL.GetNeutralPosition(ref strChannelBuffer, 6, HPMath);
@@ -2700,9 +3020,33 @@ namespace PCCpro
                         }
                         else
                         {
-                            boolErrorFlag = true;
+                            DialogResult dr = MessageBox.Show(
+                                    "Unable to retrieve valid channel 6 startup value. Load factory default value?", "USB2PPM Parameter Error",
+                                    MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+                            if (dr == DialogResult.Yes)
+                            {
+                                if (myPCAL.SetChannelNeutral("1500", 6))
+                                {
+                                    strCH_6_Neutral.Value = 1500;
+                                    strCH_6_Neutral.ForeColor = Color.Black;
+                                }
+                                else
+                                {
+                                    dr = MessageBox.Show(
+                                            "Unable to correct channel 6 startup value. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
+                                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    boolErrorFlag = true;
+                                    myMessage = "Unable to retrieve valid channel 6 startup value";
+                                }
+                            }
+                            else
+                            {
+                                boolErrorFlag = true;
+                                myMessage = "Unable to retrieve valid channel 6 startup value";
+                            }
                         }
                     }
+
                     if (!boolErrorFlag)
                     {   // retrieve neutral value
                         myPCAL.GetNeutralPosition(ref strChannelBuffer, 7, HPMath);
@@ -2713,9 +3057,33 @@ namespace PCCpro
                         }
                         else
                         {
-                            boolErrorFlag = true;
+                            DialogResult dr = MessageBox.Show(
+                                    "Unable to retrieve valid channel 7 startup value. Load factory default value?", "USB2PPM Parameter Error",
+                                    MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+                            if (dr == DialogResult.Yes)
+                            {
+                                if (myPCAL.SetChannelNeutral("1500", 7))
+                                {
+                                    strCH_7_Neutral.Value = 1500;
+                                    strCH_7_Neutral.ForeColor = Color.Black;
+                                }
+                                else
+                                {
+                                    dr = MessageBox.Show(
+                                            "Unable to correct channel 7 startup value. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
+                                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    boolErrorFlag = true;
+                                    myMessage = "Unable to retrieve valid channel 7 startup value";
+                                }
+                            }
+                            else
+                            {
+                                boolErrorFlag = true;
+                                myMessage = "Unable to retrieve valid channel 7 startup value";
+                            }
                         }
                     }
+
                     if (!boolErrorFlag)
                     {   // retrieve neutral value
                         myPCAL.GetNeutralPosition(ref strChannelBuffer, 8, HPMath);
@@ -2726,9 +3094,33 @@ namespace PCCpro
                         }
                         else
                         {
-                            boolErrorFlag = true;
+                            DialogResult dr = MessageBox.Show(
+                                    "Unable to retrieve valid channel 8 startup value. Load factory default value?", "USB2PPM Parameter Error",
+                                    MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+                            if (dr == DialogResult.Yes)
+                            {
+                                if (myPCAL.SetChannelNeutral("1500", 8))
+                                {
+                                    strCH_8_Neutral.Value = 1500;
+                                    strCH_8_Neutral.ForeColor = Color.Black;
+                                }
+                                else
+                                {
+                                    dr = MessageBox.Show(
+                                            "Unable to correct channel 8 startup value. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
+                                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    boolErrorFlag = true;
+                                    myMessage = "Unable to retrieve valid channel 8 startup value";
+                                }
+                            }
+                            else
+                            {
+                                boolErrorFlag = true;
+                                myMessage = "Unable to retrieve valid channel 8 startup value";
+                            }
                         }
                     }
+                
                 }
 
                 GroupBox8.Visible = false;
@@ -2739,35 +3131,97 @@ namespace PCCpro
                 PPM_Mode.Items.Add("negative (Futaba)");
 
                 if (!boolErrorFlag)
-                {   // retrieve neutral value
-                    myPCAL.GetPPMSettings(ref strChannelBuffer);
-                    if (strChannelBuffer != "TimeOut")
+                {   // retrieve PPM settings
+                    if (PPMModeLegacy)  // retrieve not possible -> push default
                     {
-                        PPM_Channels.Value = strChannelBuffer[0] - '0';
-                        if (strChannelBuffer[1] == 'P')
+                        if (myPCAL.SetPiKoderPPMChannels(8))
                         {
-                            PPM_Mode.SelectedIndex = 0;
+                            if (myPCAL.SetPiKoderPPMMode(1))
+                            {
+                                if (myPCAL.SetPiKoderPPMMode(1))
+                                {
+                                    PPM_Mode.SelectedIndex = 1;
+                                    PPMmode = 1;
+                                }
+                                else
+                                {
+                                    boolErrorFlag = true;
+                                    myMessage = "Unable to set PPM values";
+                                }
+                            }
+                            else
+                            {
+                                boolErrorFlag = true;
+                                myMessage = "Unable to set PPM values";
+                            }
                         }
                         else
                         {
-                            PPM_Mode.SelectedIndex = 1;
+                            boolErrorFlag = true;
+                            myMessage = "Unable to set PPM values";
                         }
                     }
                     else
                     {
-                        boolErrorFlag = true;
-                    }
-                }
+                        myPCAL.GetPPMSettings(ref strChannelBuffer);
+                        if (strChannelBuffer != "TimeOut")
+                        {
+                            PPM_Channels.Value = strChannelBuffer[0] - '0';
+                            if (strChannelBuffer[1] == 'P')
+                            {
+                                PPM_Mode.SelectedIndex = 0;
+                                PPMmode = 0;
+                            }
+                            else
+                            {
+                                PPM_Mode.SelectedIndex = 1;
+                                PPMmode = 1;
+                            }
 
-                PPM_Channels.ForeColor = Color.Black;
-                PPM_Mode.ForeColor = Color.Black;
-                PPM_Mode.ClearSelected();
-                bDataLoaded = true;
-                IndicateConnectionOk();
+                        }
+                        else
+                        {
+                            DialogResult dr = MessageBox.Show(
+                                    "Unable to retrieve valid PPM settings. Load factory default value?", "USB2PPM Parameter Error",
+                                    MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+                            if (dr == DialogResult.Yes)
+                            {
+                                if (myPCAL.SetPiKoderPPMSettings(8,1))
+                                {
+                                    PPM_Channels.Value = 8;
+                                    PPM_Mode.SelectedIndex = 1;
+                                    PPMmode = 1;
+                                }
+                                else
+                                {
+                                    dr = MessageBox.Show(
+                                            "Unable to correct PPM settings. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
+                                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    boolErrorFlag = true;
+                                    myMessage = "Unable to retrieve valid PPM settings";
+                                }
+                            }
+                            else
+                            {
+                                boolErrorFlag = true;
+                                myMessage = "Unable to retrieve valid PPM settings";
+                            }
+                        }
+                    }
+
+                }
             }
+
+            PPM_Channels.ForeColor = Color.Black;
+            PPM_Mode.ForeColor = Color.Black;
+            PPM_Mode.ClearSelected();
+            bDataLoaded = true;
+            IndicateConnectionOk();
         }
+
         private void PCCpro_FormClosing(Object sender, FormClosingEventArgs e)
         {
         }
+
     }
 }

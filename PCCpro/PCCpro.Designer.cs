@@ -1828,7 +1828,7 @@
             this.Controls.Add(this.frmOuter);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "PCCpro";
-            this.Text = "PiKoder Control Center 3.6";
+            this.Text = "PiKoder Control Center 3.7";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.PCCpro_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.strCH_7_Neutral)).EndInit();
             this.GroupBox5.ResumeLayout(false);

@@ -512,6 +512,29 @@ public class PiKoderCommunicationAbstractionLayer
         }
     }
 
+    public bool SetPiKoderPPMSettings(int iNumberChannels, int myPPMmode)
+    {
+        string strSendString = Convert.ToString(iNumberChannels);
+        if (myPPMmode == 0)
+        {
+            strSendString += "P";
+        }
+        else
+        {
+            strSendString += "N";
+        }
+        if (iConnectedTo == iPhysicalLink.iSerialLink)
+        {
+            return InterpretReturnCode(mySerialLink.SendDataToSerialwithAck("P=" + strSendString));
+        }
+        else
+        {
+            myWLANLink.SendDataToWLAN("P=" + strSendString);
+            return InterpretReturnCode(myWLANLink.Receiver());
+        }
+    }
+
+
     public bool SetPiKoderPPMChannels(int iNumberChannels)
     {
         byte[] myByteArray = { 83, 21, 0, 0 };
@@ -523,10 +546,25 @@ public class PiKoderCommunicationAbstractionLayer
                 mySerialLink.SendBinaryDataToSerial(myByteArray, 4);
             }
             return true;
-        } else
+        }
+        else
         {
             return false;
         }
+    }
+
+    public bool SetPiKoderPPMMode(int iPPMMode)
+    {
+        byte[] myByteArray = { 83, 22, 0, 0 };
+        myByteArray[3] = Convert.ToByte(iPPMMode);
+        if (iConnectedTo == iPhysicalLink.iSerialLink)
+        {
+            if (Connected)
+            {
+                mySerialLink.SendBinaryDataToSerial(myByteArray, 4);
+            }
+        }
+        return true;
     }
 
     public bool SetPiKoderI2CBaseAdress(int iI2CBaseAdress)
@@ -548,19 +586,6 @@ public class PiKoderCommunicationAbstractionLayer
         }
     }
 
-    public bool SetPiKoderPPMMode(int iPPMMode)
-    {
-        byte[] myByteArray = { 83, 22, 0, 0 };
-        myByteArray[3] = Convert.ToByte(iPPMMode);
-        if (iConnectedTo == iPhysicalLink.iSerialLink)
-        {
-            if (Connected)
-            {
-                mySerialLink.SendBinaryDataToSerial(myByteArray, 4);
-            }
-        }
-        return true;
-    }
 
     public bool PiKoderConnected()
     {
@@ -640,7 +665,7 @@ public class PiKoderCommunicationAbstractionLayer
 
     private bool ValidatePPMSettings(string strVal)
     {
-        if (strVal[0] < '0' | strVal[0] > '9')
+        if (strVal[0] < '1' | strVal[0] > '8')
         {
             return false;
         }

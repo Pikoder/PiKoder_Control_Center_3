@@ -34,7 +34,7 @@ public class SerialLink
 {
     static bool _connected = false;
     static SerialPort _serialPort = new SerialPort();
-
+   
     public bool SerialLinkConnected()
     {
         return _connected;
@@ -100,12 +100,12 @@ public class SerialLink
             else
             {
                 j += 1;
-                System.Threading.Thread.Sleep(10);
                 if (j == 20)
                 {
                     _receiving = false;
                     return "TimeOut";
                 }
+                System.Threading.Thread.Sleep(10);
             }
         }
         return _message; 
