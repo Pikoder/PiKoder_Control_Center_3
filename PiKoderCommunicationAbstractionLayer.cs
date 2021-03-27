@@ -25,6 +25,7 @@ using System.Threading;
 public class PiKoderCommunicationAbstractionLayer
 {
     public enum iPhysicalLink
+
     {
         iSerialLink,
         iWLANlink
@@ -235,7 +236,7 @@ public class PiKoderCommunicationAbstractionLayer
                 myWLANLink.SendDataToWLAN("?");
                 SerialInputString = myWLANLink.Receiver();
             }
-            iTimeOut = iTimeOut + 1;
+            iTimeOut++;
         } while ((!SerialInputString.Contains("T=")) & (iTimeOut < 10));
         if (iTimeOut == 10)
         {
@@ -410,9 +411,9 @@ public class PiKoderCommunicationAbstractionLayer
         strSendString = iChannelNo.ToString() + "=";
         if (strPulseLength.Length == 3)
         {
-            strSendString = strSendString + "0";
+            strSendString += "0";
         }
-        strSendString = strSendString + strPulseLength;
+        strSendString += strPulseLength;
         if (iConnectedTo == iPhysicalLink.iSerialLink)
         {
             mySerialLink.SendDataToSerial(strSendString);
@@ -433,9 +434,9 @@ public class PiKoderCommunicationAbstractionLayer
         strSendString = iChannelNo.ToString() + "=";
         if (strPulseLength.Length == 4)
         {
-            strSendString = strSendString + "0";
+            strSendString += "0";
         }
-        strSendString = strSendString + strPulseLength;
+        strSendString += strPulseLength;
         if (iConnectedTo == iPhysicalLink.iSerialLink)
         {
             mySerialLink.SendDataToSerial(strSendString);
@@ -498,7 +499,7 @@ public class PiKoderCommunicationAbstractionLayer
         string CommandStr = "S";
         if (ProtectedSaveMode)
         {
-            CommandStr = CommandStr +"U]U]";
+            CommandStr += "U]U]";
         }
         if (iConnectedTo == iPhysicalLink.iSerialLink)
         {

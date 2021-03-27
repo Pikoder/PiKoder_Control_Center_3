@@ -68,7 +68,7 @@ public class WLANLink
         int iTimeOutCounter = 0;
         while ((!MessageFullyReceived) & (iTimeOutCounter < 5))
         {
-            iTimeOutCounter = iTimeOutCounter + 1;
+            iTimeOutCounter++;
             Thread.Sleep(100);
         }
         if (iTimeOutCounter == 5)
@@ -110,12 +110,12 @@ public class WLANLink
                 {
                     if ((rcvbytes[0] != 0xD) & (rcvbytes[0] != 0xA))
                     {
-                        myMessage = myMessage + System.Text.Encoding.ASCII.GetString(rcvbytes); // Convert bytes back to string
+                        myMessage += System.Text.Encoding.ASCII.GetString(rcvbytes); // Convert bytes back to string
                         messageStarted = true;
                     }
                     else if (messageStarted)
                     {
-                        eomDetect = eomDetect - 1;
+                        eomDetect--;
                         if (eomDetect == 0)
                         {
                             Receiving = false;
@@ -125,7 +125,9 @@ public class WLANLink
             }
             catch (Exception ex)
             {
-                // MessageBox.Show(ex.ToString());
+#if DEBUG
+                MessageBox.Show(ex.ToString());
+#endif
             }
         }
         MessageBuffer = String.Copy(myMessage);
@@ -141,8 +143,10 @@ public class WLANLink
     {
         byte[] sendbytes = Encoding.ASCII.GetBytes(strWriteBuffer);
         ThreadStart start = new ThreadStart(ReceiverThread);
-        receivingThread = new Thread(start);
-        receivingThread.IsBackground = true;
+        receivingThread = new Thread(start)
+        {
+            IsBackground = true
+        };
         receivingThread.Start();
         try
         {

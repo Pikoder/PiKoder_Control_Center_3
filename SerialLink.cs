@@ -62,7 +62,7 @@ public class SerialLink
         catch (Exception ex)
         {
 #if DEBUG
-            MessageBox.Show(ex.ToString());
+           MessageBox.Show(ex.ToString());
 #endif
             _connected = false;
             return false;
@@ -102,7 +102,6 @@ public class SerialLink
                 j += 1;
                 if (j == 20)
                 {
-                    _receiving = false;
                     return "TimeOut";
                 }
                 System.Threading.Thread.Sleep(10);
