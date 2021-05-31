@@ -712,7 +712,7 @@ namespace PCCpro
                     if (strChannelBuffer != "TimeOut")
                     {
                         strSSC_Firmware.Text = strChannelBuffer;
-                        if (Double.Parse(strChannelBuffer, CultureInfo.InvariantCulture) > 3.00)
+                        if (Double.Parse(strChannelBuffer, CultureInfo.InvariantCulture) > 3.01)
                         {
                             MessageBox.Show("The PiKoder firmware version found is not supported! Please goto www.pikoder.com and upgrade PCC Control Center to the latest version.", "Error Message", MessageBoxButtons.OK);
                             Application.Exit();
@@ -722,15 +722,18 @@ namespace PCCpro
                             ProtectedSaveMode = true;
                             FastChannelRetrieve = true;
                             IOSwitching = true;
+                            RetrievePiKoderParameters();
                         }
                         else if (Double.Parse(strChannelBuffer) >= 2.09)
                         {
                             FastChannelRetrieve = true;
                             IOSwitching = true;
+                            RetrievePiKoderParameters();
                         }
                         else if (Double.Parse(strChannelBuffer) >= 2.07)
                         {
                             IOSwitching = true;
+                            RetrievePiKoderParameters();
                         }
                         else if (Double.Parse(strChannelBuffer) < 2.0)
                         {
@@ -742,7 +745,6 @@ namespace PCCpro
                             boolErrorFlag = true;
                         }
                     }
-                    RetrievePiKoderParameters();
                 }
             }
         }
@@ -762,23 +764,23 @@ namespace PCCpro
                     if (strChannelBuffer != "TimeOut")
                     {
                         strSSC_Firmware.Text = strChannelBuffer;
-                        if (Double.Parse(strChannelBuffer, CultureInfo.InvariantCulture) > 1.00)
+                        if (Double.Parse(strChannelBuffer, CultureInfo.InvariantCulture) > 1.01)
                         {
                             MessageBox.Show("The PiKoder firmware version found is not supported! Please goto www.pikoder.com and upgrade PCC Control Center to the latest version.", "Error Message", MessageBoxButtons.OK);
                             Application.Exit();
                         }
-                        else if (Double.Parse(strChannelBuffer, CultureInfo.InvariantCulture) == 1.00)
+                        else if (Double.Parse(strChannelBuffer, CultureInfo.InvariantCulture) >= 1.00)
                         {
                             ProtectedSaveMode = true;
                             FastChannelRetrieve = true;
                             IOSwitching = true;
+                            RetrievePiKoderParameters();
                         }
                         else  // error message
                         {
                             boolErrorFlag = true;
                         }
                     }
-                    RetrievePiKoderParameters();
                 }
             }
         }
