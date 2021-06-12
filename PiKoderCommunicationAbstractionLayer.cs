@@ -225,11 +225,19 @@ public class PiKoderCommunicationAbstractionLayer
         {
             if (iConnectedTo == iPhysicalLink.iSerialLink)
             {
-                while (mySerialLink.SerialReceiver() != "TimeOut")
+                while (mySerialLink.SerialReceiver(1) != "TimeOut")
                 {
                 }
                 mySerialLink.SendDataToSerial("?");
-                SerialInputString = mySerialLink.SerialReceiver();
+                if (mySerialLink.SerialLinkConnected())
+                {
+                    SerialInputString = mySerialLink.SerialReceiver(3);
+                }
+                else
+                {
+                    SerialInputString = "TimeOut";
+                    return;
+                }
             }
             else if (iConnectedTo == iPhysicalLink.iWLANlink)
             {
@@ -237,10 +245,10 @@ public class PiKoderCommunicationAbstractionLayer
                 SerialInputString = myWLANLink.Receiver();
             }
             iTimeOut++;
-        } while ((!SerialInputString.Contains("T=")) & (iTimeOut < 10));
-        if (iTimeOut == 10)
+        } while ((!SerialInputString.Contains("T=")) & (iTimeOut < 3));
+        if (iTimeOut == 3)
         {
-                SerialInputString = "TimeOut";
+            SerialInputString = "TimeOut";
         }
     }
 

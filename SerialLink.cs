@@ -110,6 +110,48 @@ public class SerialLink
         return _message; 
     }
 
+    public string SerialReceiver(int timeoutCount)
+    {
+        string _message = "";
+        bool _receiving = true;
+        bool _messageStarted = false;
+        int _eomDetect = 2;
+        int j = 0;
+        byte _byte;
+
+        while (_receiving)
+        {
+            if (_connected & (_serialPort.BytesToRead > 0))
+            {
+                j = 0;
+                _byte = (byte)_serialPort.ReadByte();
+                if ((_byte != 0xD) & (_byte != 0xA))
+                {
+                    _message += Convert.ToChar(_byte);
+                    _messageStarted = true;
+                }
+                else if (_messageStarted)
+                {
+                    _eomDetect -= 1;
+                    if (_eomDetect == 0)
+                    {
+                        _receiving = false;
+                    }
+                }
+            }
+            else
+            {
+                j += 1;
+                if (j == timeoutCount)
+                {
+                    return "TimeOut";
+                }
+                System.Threading.Thread.Sleep(1);
+            }
+        }
+        return _message;
+    }
+
     public string SendDataToSerialwithAck(string strWriteBuffer)
     {
         try

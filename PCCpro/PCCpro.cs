@@ -2304,11 +2304,11 @@ namespace PCCpro
                 ledBulb1.Blink(0);
                 if (ConnectCOM.Checked)
                 {
-                    TextBox1.Text = "Could not open " + AvailableCOMPorts.Items[AvailableCOMPorts.TopIndex].ToString();
+                    myMessage = "Could not open " + AvailableCOMPorts.Items[AvailableCOMPorts.TopIndex].ToString();
                 }
                 else
                 {
-                    TextBox1.Text = "Could not connect to " + ConnectedAP.Text;
+                    myMessage = "Could not connect to " + ConnectedAP.Text;
                 }
             }
         }

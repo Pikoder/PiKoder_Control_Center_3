@@ -100,7 +100,6 @@
             this.saveButton = new System.Windows.Forms.Button();
             this.GroupBox3 = new System.Windows.Forms.GroupBox();
             this.GroupBox2 = new System.Windows.Forms.GroupBox();
-            this.ledBulb1 = new Bulb.LedBulb();
             this.TextBox1 = new System.Windows.Forms.TextBox();
             this.Label13 = new System.Windows.Forms.Label();
             this.Label2 = new System.Windows.Forms.Label();
@@ -131,6 +130,7 @@
             this.frmOuter = new System.Windows.Forms.GroupBox();
             this.ToolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.BlinkTimer = new System.Windows.Forms.Timer(this.components);
+            this.ledBulb1 = new Bulb.LedBulb();
             ((System.ComponentModel.ISupportInitialize)(this.strCH_7_Neutral)).BeginInit();
             this.GroupBox5.SuspendLayout();
             this._Frame2_0.SuspendLayout();
@@ -703,7 +703,7 @@
             this.ListBox8.Items.AddRange(new object[] {
             "P",
             "S"});
-            this.ListBox8.Location = new System.Drawing.Point(8, 315);
+            this.ListBox8.Location = new System.Drawing.Point(8, 320);
             this.ListBox8.Name = "ListBox8";
             this.ListBox8.Size = new System.Drawing.Size(43, 33);
             this.ListBox8.TabIndex = 33;
@@ -718,7 +718,7 @@
             this.ListBox7.Items.AddRange(new object[] {
             "P",
             "S"});
-            this.ListBox7.Location = new System.Drawing.Point(8, 276);
+            this.ListBox7.Location = new System.Drawing.Point(8, 277);
             this.ListBox7.Name = "ListBox7";
             this.ListBox7.Size = new System.Drawing.Size(43, 33);
             this.ListBox7.TabIndex = 32;
@@ -733,7 +733,7 @@
             this.ListBox6.Items.AddRange(new object[] {
             "P",
             "S"});
-            this.ListBox6.Location = new System.Drawing.Point(8, 233);
+            this.ListBox6.Location = new System.Drawing.Point(8, 235);
             this.ListBox6.Name = "ListBox6";
             this.ListBox6.Size = new System.Drawing.Size(43, 33);
             this.ListBox6.TabIndex = 31;
@@ -1238,16 +1238,6 @@
             this.GroupBox2.TabIndex = 22;
             this.GroupBox2.TabStop = false;
             this.GroupBox2.Text = "Status";
-            // 
-            // ledBulb1
-            // 
-            this.ledBulb1.Color = System.Drawing.Color.Red;
-            this.ledBulb1.Location = new System.Drawing.Point(217, 21);
-            this.ledBulb1.Name = "ledBulb1";
-            this.ledBulb1.On = false;
-            this.ledBulb1.Size = new System.Drawing.Size(33, 45);
-            this.ledBulb1.TabIndex = 23;
-            this.ledBulb1.Text = "ledBulb1";
             // 
             // TextBox1
             // 
@@ -1815,6 +1805,16 @@
             // 
             this.BlinkTimer.Interval = 1;
             // 
+            // ledBulb1
+            // 
+            this.ledBulb1.Color = System.Drawing.Color.Red;
+            this.ledBulb1.Location = new System.Drawing.Point(217, 21);
+            this.ledBulb1.Name = "ledBulb1";
+            this.ledBulb1.On = false;
+            this.ledBulb1.Size = new System.Drawing.Size(33, 45);
+            this.ledBulb1.TabIndex = 23;
+            this.ledBulb1.Text = "ledBulb1";
+            // 
             // PCCpro
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1827,8 +1827,13 @@
             this.Controls.Add(this.GroupBox3);
             this.Controls.Add(this.frmOuter);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximizeBox = false;
+            this.MaximumSize = new System.Drawing.Size(962, 571);
+            this.MinimizeBox = false;
+            this.MinimumSize = new System.Drawing.Size(962, 571);
             this.Name = "PCCpro";
-            this.Text = "PiKoder Control Center 3.7.1";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "PiKoder Control Center 3.7.2";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.PCCpro_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.strCH_7_Neutral)).EndInit();
             this.GroupBox5.ResumeLayout(false);
