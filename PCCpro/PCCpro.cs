@@ -2330,6 +2330,7 @@ namespace PCCpro
 
         private void ConnectCOM_CheckedChanged(object Sender, EventArgs e)
         {
+            TextBox1.Text = "";  // delete any prior error message
             if (ConnectCOM.Checked)
             {
                 if (ConnectWLAN.Checked)
@@ -2357,6 +2358,7 @@ namespace PCCpro
         private void ConnectWLAN_CheckedChanged(object Sender, EventArgs e)
         {
             string myMessage = "";
+            TextBox1.Text = "";  // delete any prior error message
             if (ConnectWLAN.Checked)
             {
                 if (ConnectedAP.Text == "")
