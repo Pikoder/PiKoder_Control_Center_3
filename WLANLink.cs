@@ -36,7 +36,8 @@ public class WLANLink
     private bool Connected = false;     // connection status
     private string MessageBuffer = "";
     private bool MessageFullyReceived = false;
-   
+    private bool MessageStarted = false;
+
     // Initialize listening & sending subs
     //
     public bool EstablishWLANLink()
@@ -66,25 +67,22 @@ public class WLANLink
     public string Receiver()
     {
         int iTimeOutCounter = 0;
-        while ((!MessageFullyReceived) & (iTimeOutCounter < 5))
+        while (!MessageFullyReceived)
         {
-            iTimeOutCounter++;
-            Thread.Sleep(100);
-        }
-        if (iTimeOutCounter == 5)
-        {
-            try
+            if (iTimeOutCounter++ == 100)
             {
-                receivingThread.Abort();
+                try
+                {
+                    receivingThread.Abort();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                }
+                return "TimeOut";
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
-            MessageFullyReceived = false;   // free up buffer
-            return "TimeOut";
+            Thread.Sleep(10);
         }
-        MessageFullyReceived = false;   // free up buffer
         return MessageBuffer;
     }
 
@@ -93,9 +91,9 @@ public class WLANLink
         IPEndPoint endPoint = new IPEndPoint(System.Net.IPAddress.Parse(AP_Address), rxPort);    // Listen for incoming data from any IP address on the specified port
         string myMessage = "";
         bool Receiving = true;
-        bool messageStarted = false;
         int eomDetect = 2;
         MessageBuffer = ""; // make sure to start fresh
+        MessageStarted = false;
         while (Receiving)
         {
             try
@@ -111,26 +109,23 @@ public class WLANLink
                     if ((rcvbytes[0] != 0xD) & (rcvbytes[0] != 0xA))
                     {
                         myMessage += System.Text.Encoding.ASCII.GetString(rcvbytes); // Convert bytes back to string
-                        messageStarted = true;
+                        MessageStarted = true;
                     }
-                    else if (messageStarted)
+                    else if (MessageStarted)
                     {
-                        eomDetect--;
-                        if (eomDetect == 0)
+                        if (--eomDetect == 0)
                         {
                             Receiving = false;
                         }
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
-#if DEBUG
-                MessageBox.Show(ex.ToString());
-#endif
+                Receiving = false;
             }
         }
-        MessageBuffer = String.Copy(myMessage);
+        MessageBuffer = myMessage;
         MessageFullyReceived = true;
     }
 
@@ -142,6 +137,8 @@ public class WLANLink
     public void SendDataToWLAN(string strWriteBuffer)
     {
         byte[] sendbytes = Encoding.ASCII.GetBytes(strWriteBuffer);
+        MessageFullyReceived = false;
+        MessageBuffer = "";
         ThreadStart start = new ThreadStart(ReceiverThread);
         receivingThread = new Thread(start)
         {

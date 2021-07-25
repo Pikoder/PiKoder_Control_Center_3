@@ -20,7 +20,6 @@
 //
 
 using System;
-using System.Threading;
 
 public class PiKoderCommunicationAbstractionLayer
 {
@@ -245,8 +244,8 @@ public class PiKoderCommunicationAbstractionLayer
                 SerialInputString = myWLANLink.Receiver();
             }
             iTimeOut++;
-        } while ((!SerialInputString.Contains("T=")) & (iTimeOut < 3));
-        if (iTimeOut == 3)
+        } while (!ValidateTypeRecord(SerialInputString) & (iTimeOut < 5));
+        if (iTimeOut == 5)
         {
             SerialInputString = "TimeOut";
         }
@@ -606,6 +605,23 @@ public class PiKoderCommunicationAbstractionLayer
         {
             return false;
         }
+    }
+
+
+    private bool ValidateTypeRecord(string strVal)
+    {
+        if (strVal == "TimeOut")
+        {
+            return false;
+        }
+        if ((strVal[0] == 'T') & (strVal[1] == '='))
+        {
+            if (strVal.Length >= 5) 
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
 

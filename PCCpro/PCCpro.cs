@@ -2389,7 +2389,7 @@ namespace PCCpro
                 myPCAL.DisconnectLink(PiKoderCommunicationAbstractionLayer.iPhysicalLink.iWLANlink);
                 if (boolErrorFlag)
                 {
-                    myMessage = "Access Point " + ConnectedAP.Text + " not supported";
+                    myMessage = "Access Point " + ConnectedAP.Text + " time out or not supported. Please retry.";
                 }
                 CleanUpUI();
                 TextBox1.Text = myMessage;
@@ -3227,5 +3227,10 @@ namespace PCCpro
         {
         }
 
+    }
+
+    public class GlobalDebug 
+    { 
+        public static string myGlobalDebugString;
     }
 }
