@@ -180,7 +180,7 @@ namespace PCCpro
         //***************************************************************************
         private void UpdateCOMPortList()
         {
-            int i = 0;
+            int i;
             int k;
             bool foundDifference = false;
             bool foundDifferenceHere;
@@ -339,24 +339,24 @@ namespace PCCpro
         //   Remarks:
         //       None
         //***************************************************************************/
-        private void saveButton_Click(object Sender, EventArgs e)
+        private void SaveButton_Click(object Sender, EventArgs e)
         {
             if (myPCAL.LinkConnected())
             {
-                bool iRetCode = myPCAL.SetPiKoderPreferences(ProtectedSaveMode);
+                myPCAL.SetPiKoderPreferences(ProtectedSaveMode);
 
             }
         }
 
         // Subroutine for starting heartbeat timer
-        private void startHeartBeat(int heartBeatInterval)
+        private void StartHeartBeat(int heartBeatInterval)
         {
             tHeartBeat.Enabled = true;
             tHeartBeat.Interval = heartBeatInterval;
         }
 
         // Subroutine for stopping heartbeat timer
-        private void stopHeartBeat()
+        private void StopHeartBeat()
         {
             if (tHeartBeat.Enabled)
             {
@@ -401,7 +401,7 @@ namespace PCCpro
             ledBulb1.Color = Color.Red;     // indicate that connection is lost
             ledBulb1.On = false;
             TextBox1.Text = "";
-            stopHeartBeat();
+            StopHeartBeat();
             Timer1.Enabled = true;
             TypeId.Text = "";    // reset type information
             strPiKoderType = "";
@@ -899,7 +899,7 @@ namespace PCCpro
             return strChannelBuffer + Convert.ToString(iChannelValue);
         }
 
-        private void strCH_1_Neutral_ValueChanged(object Sender, EventArgs e)
+        private void CH_1_Neutral_ValueChanged(object Sender, EventArgs e)
         {
             if (myPCAL.LinkConnected())
             {
@@ -911,7 +911,7 @@ namespace PCCpro
 
         }
 
-        private void strCH_2_Neutral_ValueChanged(object Sender, EventArgs e)
+        private void CH_2_Neutral_ValueChanged(object Sender, EventArgs e)
         {
             if (myPCAL.LinkConnected())
             {
@@ -922,7 +922,7 @@ namespace PCCpro
             }
         }
 
-        private void strCH_3_Neutral_ValueChanged(object Sender, EventArgs e)
+        private void CH_3_Neutral_ValueChanged(object Sender, EventArgs e)
         {
             if (myPCAL.LinkConnected())
             {
@@ -933,7 +933,7 @@ namespace PCCpro
             }
         }
 
-        private void strCH_4_Neutral_ValueChanged(object Sender, EventArgs e)
+        private void CH_4_Neutral_ValueChanged(object Sender, EventArgs e)
         {
             if (myPCAL.LinkConnected())
             {
@@ -944,7 +944,7 @@ namespace PCCpro
             }
         }
 
-        private void strCH_5_Neutral_ValueChanged(object Sender, EventArgs e)
+        private void CH_5_Neutral_ValueChanged(object Sender, EventArgs e)
         {
             if (myPCAL.LinkConnected())
             {
@@ -955,7 +955,7 @@ namespace PCCpro
             }
         }
 
-        private void strCH_6_Neutral_ValueChanged(object Sender, EventArgs e)
+        private void CH_6_Neutral_ValueChanged(object Sender, EventArgs e)
         {
             if (myPCAL.LinkConnected())
             {
@@ -965,7 +965,8 @@ namespace PCCpro
                 }
             }
         }
-        private void strCH_7_Neutral_ValueChanged(object Sender, EventArgs e)
+
+        private void CH_7_Neutral_ValueChanged(object Sender, EventArgs e)
         {
             if (myPCAL.LinkConnected())
             {
@@ -976,7 +977,7 @@ namespace PCCpro
             }
         }
 
-        private void strCH_8_Neutral_ValueChanged(object Sender, EventArgs e)
+        private void CH_8_Neutral_ValueChanged(object Sender, EventArgs e)
         {
             if (myPCAL.LinkConnected())
             {
@@ -1379,11 +1380,11 @@ namespace PCCpro
                 myPCAL.SetPiKoderTimeOut(myStringBuffer + Convert.ToString(TimeOut.Value));
                 if (TimeOut.Value != 0)
                 {
-                    startHeartBeat(Convert.ToInt32(TimeOut.Value) * 100 / 2); // set to shorter interval to make sure to account for admin
+                    StartHeartBeat(Convert.ToInt32(TimeOut.Value) * 100 / 2); // set to shorter interval to make sure to account for admin
                 }
                 else
                 {
-                    stopHeartBeat();
+                    StopHeartBeat();
                 }
             }
         }
@@ -2363,7 +2364,8 @@ namespace PCCpro
             {
                 if (ConnectedAP.Text == "")
                 {   // make sure we are connected to an AP
-                    myMessage = "Not connected to a WLAN";
+                    MessageBox.Show("Not connected to any WLAN. Please connect first using Windows.",
+                    "WLAN not available", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     ConnectWLAN.Checked = false;
                 }
                 else
@@ -2471,7 +2473,7 @@ namespace PCCpro
                             }
                             else
                             {
-                                dr = MessageBox.Show(
+                                MessageBox.Show(
                                         "Unable to correct channel 1 pulse length. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
                                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 boolErrorFlag = true;
@@ -2507,7 +2509,7 @@ namespace PCCpro
                             }
                             else
                             {
-                                dr = MessageBox.Show(
+                                MessageBox.Show(
                                         "Unable to correct channel 2 pulse length. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
                                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 boolErrorFlag = true;
@@ -2544,7 +2546,7 @@ namespace PCCpro
                             }
                             else
                             {
-                                dr = MessageBox.Show(
+                                MessageBox.Show(
                                         "Unable to correct channel 3 pulse length. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
                                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 boolErrorFlag = true;
@@ -2581,7 +2583,7 @@ namespace PCCpro
                             }
                             else
                             {
-                                dr = MessageBox.Show(
+                                MessageBox.Show(
                                         "Unable to correct channel 4 pulse length. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
                                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 boolErrorFlag = true;
@@ -2618,7 +2620,7 @@ namespace PCCpro
                             }
                             else
                             {
-                                dr = MessageBox.Show(
+                                MessageBox.Show(
                                         "Unable to correct channel 5 pulse length. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
                                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 boolErrorFlag = true;
@@ -2655,7 +2657,7 @@ namespace PCCpro
                             }
                             else
                             {
-                                dr = MessageBox.Show(
+                                MessageBox.Show(
                                         "Unable to correct channel 6 pulse length. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
                                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 boolErrorFlag = true;
@@ -2692,7 +2694,7 @@ namespace PCCpro
                             }
                             else
                             {
-                                dr = MessageBox.Show(
+                                MessageBox.Show(
                                         "Unable to correct channel 7 pulse length. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
                                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 boolErrorFlag = true;
@@ -2729,7 +2731,7 @@ namespace PCCpro
                             }
                             else
                             {
-                                dr = MessageBox.Show(
+                                MessageBox.Show(
                                         "Unable to correct channel 8 pulse length. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
                                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 boolErrorFlag = true;
@@ -2851,7 +2853,7 @@ namespace PCCpro
                                 }
                                 else
                                 {
-                                    dr = MessageBox.Show(
+                                    MessageBox.Show(
                                             "Unable to correct channel 1 startup value. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
                                             MessageBoxButtons.OK, MessageBoxIcon.Error);
                                     boolErrorFlag = true;
@@ -2888,7 +2890,7 @@ namespace PCCpro
                                 }
                                 else
                                 {
-                                    dr = MessageBox.Show(
+                                    MessageBox.Show(
                                             "Unable to correct channel 2 startup value. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
                                             MessageBoxButtons.OK, MessageBoxIcon.Error);
                                     boolErrorFlag = true;
@@ -2925,7 +2927,7 @@ namespace PCCpro
                                 }
                                 else
                                 {
-                                    dr = MessageBox.Show(
+                                    MessageBox.Show(
                                             "Unable to correct channel 3 startup value. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
                                             MessageBoxButtons.OK, MessageBoxIcon.Error);
                                     boolErrorFlag = true;
@@ -2962,7 +2964,7 @@ namespace PCCpro
                                 }
                                 else
                                 {
-                                    dr = MessageBox.Show(
+                                    MessageBox.Show(
                                             "Unable to correct channel 4 startup value. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
                                             MessageBoxButtons.OK, MessageBoxIcon.Error);
                                     boolErrorFlag = true;
@@ -2999,7 +3001,7 @@ namespace PCCpro
                                 }
                                 else
                                 {
-                                    dr = MessageBox.Show(
+                                    MessageBox.Show(
                                             "Unable to correct channel 5 startup value. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
                                             MessageBoxButtons.OK, MessageBoxIcon.Error);
                                     boolErrorFlag = true;
@@ -3036,7 +3038,7 @@ namespace PCCpro
                                 }
                                 else
                                 {
-                                    dr = MessageBox.Show(
+                                    MessageBox.Show(
                                             "Unable to correct channel 6 startup value. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
                                             MessageBoxButtons.OK, MessageBoxIcon.Error);
                                     boolErrorFlag = true;
@@ -3073,7 +3075,7 @@ namespace PCCpro
                                 }
                                 else
                                 {
-                                    dr = MessageBox.Show(
+                                    MessageBox.Show(
                                             "Unable to correct channel 7 startup value. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
                                             MessageBoxButtons.OK, MessageBoxIcon.Error);
                                     boolErrorFlag = true;
@@ -3110,7 +3112,7 @@ namespace PCCpro
                                 }
                                 else
                                 {
-                                    dr = MessageBox.Show(
+                                    MessageBox.Show(
                                             "Unable to correct channel 8 startup value. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
                                             MessageBoxButtons.OK, MessageBoxIcon.Error);
                                     boolErrorFlag = true;
@@ -3198,7 +3200,7 @@ namespace PCCpro
                                 }
                                 else
                                 {
-                                    dr = MessageBox.Show(
+                                    MessageBox.Show(
                                             "Unable to correct PPM settings. For further assistance please contact support@pikoder.com.", "USB2PPM Parameter Error",
                                             MessageBoxButtons.OK, MessageBoxIcon.Error);
                                     boolErrorFlag = true;

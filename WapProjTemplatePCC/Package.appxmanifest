@@ -9,7 +9,7 @@
   <Identity
     Name="32271www.pikoder.com.PCCpro"
     Publisher="CN=0BC09132-0FF5-45FD-B43F-974A974F6098"
-    Version="3.7.9.0" />
+    Version="3.7.10.0" />
 
   <Properties>
     <DisplayName>PCCpro</DisplayName>

@@ -85,7 +85,7 @@ namespace Bulb {
 			using (System.Drawing.Graphics g = Graphics.FromImage(offScreenBmp)) {
 				g.SmoothingMode = SmoothingMode.HighQuality;
 				// Draw the control
-				drawControl(g, this.On);
+				DrawControl(g, this.On);
 				// Draw the image to the screen
 				e.Graphics.DrawImageUnscaled(offScreenBmp, 0, 0);
 			}
@@ -94,7 +94,7 @@ namespace Bulb {
 		/// <summary>
 		/// Renders the control to an image
 		/// </summary>
-		private void drawControl(Graphics g, bool on) {
+		private void DrawControl(Graphics g, bool on) {
 			// Is the bulb on or off
 			Color lightColor = (on)? this.Color : Color.FromArgb(150, this.DarkColor);
 			Color darkColor = (on) ? this.DarkColor : this.DarkDarkColor;
@@ -114,10 +114,12 @@ namespace Bulb {
 			// Draw the glow gradient
 			var path = new GraphicsPath();
 			path.AddEllipse(rectangle);
-			var pathBrush = new PathGradientBrush(path);
-			pathBrush.CenterColor = lightColor;
-			pathBrush.SurroundColors = new Color[] { Color.FromArgb(0, lightColor) };
-			g.FillEllipse(pathBrush, rectangle);
+            var pathBrush = new PathGradientBrush(path)
+            {
+                CenterColor = lightColor,
+                SurroundColors = new Color[] { Color.FromArgb(0, lightColor) }
+            };
+            g.FillEllipse(pathBrush, rectangle);
 
 			// Draw the white reflection gradient
 			var offset = Convert.ToInt32(diameter * .15F);
@@ -125,10 +127,12 @@ namespace Bulb {
 			var whiteRect = new Rectangle(rectangle.X - offset, rectangle.Y - offset, diameter1, diameter1);
 			var path1 = new GraphicsPath();
 			path1.AddEllipse(whiteRect);
-			var pathBrush1 = new PathGradientBrush(path);
-			pathBrush1.CenterColor = _reflectionColor;
-			pathBrush1.SurroundColors = _surroundColor;
-			g.FillEllipse(pathBrush1, whiteRect);
+            var pathBrush1 = new PathGradientBrush(path)
+            {
+                CenterColor = _reflectionColor,
+                SurroundColors = _surroundColor
+            };
+            g.FillEllipse(pathBrush1, whiteRect);
 
 			// Draw the border
 			g.SetClip(this.ClientRectangle);

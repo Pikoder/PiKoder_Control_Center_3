@@ -41,9 +41,29 @@ public class SerialLink
     }
 
     public bool EstablishSerialLink(string SelectedPort) 
-    { 
-        if ((_serialPort.PortName == SelectedPort) & _connected) return true;  // port already connected
-        if (_connected) _serialPort.Close();    // another port has been selected   
+    {
+        if (_connected)
+        {
+            String currentPort = _serialPort.PortName;
+            if (_serialPort.PortName == SelectedPort)
+            {
+                return true;  // port already connected            
+            }
+
+            // another port has been selected            
+            try
+            {
+                _serialPort.Close();
+
+            }
+            catch
+            {
+                MessageBox.Show("Could not close " + currentPort + ".",
+                "Serial Communication Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+            }
+        }
+
         try
         {
             _serialPort.PortName = SelectedPort;
@@ -59,11 +79,10 @@ public class SerialLink
             _connected = true;
             return true;
         }
-        catch (Exception ex)
+        catch
         {
-#if DEBUG
-           MessageBox.Show(ex.ToString());
-#endif
+            MessageBox.Show("Could not open " + SelectedPort + ".",  
+            "Serial Communication Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             _connected = false;
             return false;
         }
@@ -159,11 +178,10 @@ public class SerialLink
             _serialPort.Write(strWriteBuffer);
             return SerialReceiver();
         }
-        catch (Exception ex)
+        catch
         {
-#if DEBUG
-            MessageBox.Show(ex.ToString());
-#endif
+            MessageBox.Show("Disconnect port due to serial write error.",
+            "Serial Communication Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             _connected = false;
             return "?";
         }
@@ -175,13 +193,19 @@ public class SerialLink
         {
             _serialPort.Write(strWriteBuffer);
         }
-        catch (Exception ex)
+        catch
         {
-#if DEBUG
-            MessageBox.Show(ex.ToString());
-#endif
+            MessageBox.Show("Disconnect port due to serial write error.",
+            "Serial Communication Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             _connected = false;
-            _serialPort.Close();
+            try
+            {
+                _serialPort.Close();
+            }
+            catch
+            {
+
+            }
         }
     }
 
@@ -191,12 +215,19 @@ public class SerialLink
         {
             _serialPort.Write(myByteArray, 0, numBytes);
         }
-        catch (Exception ex)
+        catch
         {
-#if DEBUG
-            MessageBox.Show(ex.ToString());
-#endif
+            MessageBox.Show("Disconnect port due to serial write error.",
+            "Serial Communication Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             _connected = false;
+            try
+            {
+                _serialPort.Close();
+            }
+            catch
+            {
+
+            }
         }
     }
 
@@ -207,11 +238,8 @@ public class SerialLink
             _serialPort.Close();
             _connected = false;     //make sure to force new connect
         }
-        catch (Exception ex)
+        catch 
         {
-#if DEBUG
-            MessageBox.Show(ex.ToString());
-#endif
             _connected = false;
         }
     }
@@ -231,11 +259,19 @@ public class SerialLink
                 _connected = false;
                 return false;
             }
-            catch (Exception ex)
+            catch
             {
-#if DEBUG
-                MessageBox.Show(ex.ToString());
-#endif
+                MessageBox.Show("Disconnect port due to serial write error.",
+                "Serial Communication Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _connected = false;
+                try
+                {
+                    _serialPort.Close();
+                }
+                catch
+                {
+
+                }
             }
         }
         _connected = false;

@@ -100,7 +100,6 @@
             this.saveButton = new System.Windows.Forms.Button();
             this.GroupBox3 = new System.Windows.Forms.GroupBox();
             this.GroupBox2 = new System.Windows.Forms.GroupBox();
-            this.ledBulb1 = new Bulb.LedBulb();
             this.TextBox1 = new System.Windows.Forms.TextBox();
             this.Label13 = new System.Windows.Forms.Label();
             this.Label2 = new System.Windows.Forms.Label();
@@ -131,6 +130,7 @@
             this.frmOuter = new System.Windows.Forms.GroupBox();
             this.ToolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.BlinkTimer = new System.Windows.Forms.Timer(this.components);
+            this.ledBulb1 = new Bulb.LedBulb();
             ((System.ComponentModel.ISupportInitialize)(this.strCH_7_Neutral)).BeginInit();
             this.GroupBox5.SuspendLayout();
             this._Frame2_0.SuspendLayout();
@@ -197,7 +197,7 @@
             this.strCH_7_Neutral.Size = new System.Drawing.Size(64, 26);
             this.strCH_7_Neutral.TabIndex = 24;
             this.strCH_7_Neutral.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.strCH_7_Neutral.ValueChanged += new System.EventHandler(this.strCH_7_Neutral_ValueChanged);
+            this.strCH_7_Neutral.ValueChanged += new System.EventHandler(this.CH_7_Neutral_ValueChanged);
             // 
             // GroupBox5
             // 
@@ -573,7 +573,7 @@
             this.strCH_8_Neutral.Size = new System.Drawing.Size(64, 26);
             this.strCH_8_Neutral.TabIndex = 25;
             this.strCH_8_Neutral.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.strCH_8_Neutral.ValueChanged += new System.EventHandler(this.strCH_8_Neutral_ValueChanged);
+            this.strCH_8_Neutral.ValueChanged += new System.EventHandler(this.CH_8_Neutral_ValueChanged);
             // 
             // ListBox5
             // 
@@ -989,7 +989,7 @@
             this.strCH_6_Neutral.Size = new System.Drawing.Size(64, 26);
             this.strCH_6_Neutral.TabIndex = 23;
             this.strCH_6_Neutral.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.strCH_6_Neutral.ValueChanged += new System.EventHandler(this.strCH_6_Neutral_ValueChanged);
+            this.strCH_6_Neutral.ValueChanged += new System.EventHandler(this.CH_6_Neutral_ValueChanged);
             // 
             // GroupBox11
             // 
@@ -1027,7 +1027,7 @@
             this.strCH_5_Neutral.Size = new System.Drawing.Size(64, 26);
             this.strCH_5_Neutral.TabIndex = 22;
             this.strCH_5_Neutral.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.strCH_5_Neutral.ValueChanged += new System.EventHandler(this.strCH_5_Neutral_ValueChanged);
+            this.strCH_5_Neutral.ValueChanged += new System.EventHandler(this.CH_5_Neutral_ValueChanged);
             // 
             // strCH_4_Neutral
             // 
@@ -1042,7 +1042,7 @@
             this.strCH_4_Neutral.Size = new System.Drawing.Size(64, 26);
             this.strCH_4_Neutral.TabIndex = 21;
             this.strCH_4_Neutral.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.strCH_4_Neutral.ValueChanged += new System.EventHandler(this.strCH_4_Neutral_ValueChanged);
+            this.strCH_4_Neutral.ValueChanged += new System.EventHandler(this.CH_4_Neutral_ValueChanged);
             // 
             // strCH_3_Neutral
             // 
@@ -1057,7 +1057,7 @@
             this.strCH_3_Neutral.Size = new System.Drawing.Size(64, 26);
             this.strCH_3_Neutral.TabIndex = 20;
             this.strCH_3_Neutral.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.strCH_3_Neutral.ValueChanged += new System.EventHandler(this.strCH_3_Neutral_ValueChanged);
+            this.strCH_3_Neutral.ValueChanged += new System.EventHandler(this.CH_3_Neutral_ValueChanged);
             // 
             // strCH_2_Neutral
             // 
@@ -1072,7 +1072,7 @@
             this.strCH_2_Neutral.Size = new System.Drawing.Size(64, 26);
             this.strCH_2_Neutral.TabIndex = 19;
             this.strCH_2_Neutral.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.strCH_2_Neutral.ValueChanged += new System.EventHandler(this.strCH_2_Neutral_ValueChanged);
+            this.strCH_2_Neutral.ValueChanged += new System.EventHandler(this.CH_2_Neutral_ValueChanged);
             // 
             // strCH_1_Neutral
             // 
@@ -1087,7 +1087,7 @@
             this.strCH_1_Neutral.Size = new System.Drawing.Size(64, 26);
             this.strCH_1_Neutral.TabIndex = 18;
             this.strCH_1_Neutral.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.strCH_1_Neutral.ValueChanged += new System.EventHandler(this.strCH_1_Neutral_ValueChanged);
+            this.strCH_1_Neutral.ValueChanged += new System.EventHandler(this.CH_1_Neutral_ValueChanged);
             // 
             // ConnectWLAN
             // 
@@ -1203,7 +1203,7 @@
             this.saveButton.TabIndex = 0;
             this.saveButton.Text = "Save Parameters";
             this.saveButton.UseVisualStyleBackColor = false;
-            this.saveButton.Click += new System.EventHandler(this.saveButton_Click);
+            this.saveButton.Click += new System.EventHandler(this.SaveButton_Click);
             // 
             // GroupBox3
             // 
@@ -1238,16 +1238,6 @@
             this.GroupBox2.TabIndex = 22;
             this.GroupBox2.TabStop = false;
             this.GroupBox2.Text = "Status";
-            // 
-            // ledBulb1
-            // 
-            this.ledBulb1.Color = System.Drawing.Color.Red;
-            this.ledBulb1.Location = new System.Drawing.Point(217, 21);
-            this.ledBulb1.Name = "ledBulb1";
-            this.ledBulb1.On = false;
-            this.ledBulb1.Size = new System.Drawing.Size(33, 45);
-            this.ledBulb1.TabIndex = 23;
-            this.ledBulb1.Text = "ledBulb1";
             // 
             // TextBox1
             // 
@@ -1719,7 +1709,7 @@
             0,
             0,
             0});
-            this.strCH_3_Min.ValueChanged += new System.EventHandler(this.strCH_3_Neutral_ValueChanged);
+            this.strCH_3_Min.ValueChanged += new System.EventHandler(this.strCH_3_Min_ValueChanged);
             // 
             // strCH_2_Min
             // 
@@ -1816,6 +1806,16 @@
             // 
             this.BlinkTimer.Interval = 1;
             // 
+            // ledBulb1
+            // 
+            this.ledBulb1.Color = System.Drawing.Color.Red;
+            this.ledBulb1.Location = new System.Drawing.Point(217, 21);
+            this.ledBulb1.Name = "ledBulb1";
+            this.ledBulb1.On = false;
+            this.ledBulb1.Size = new System.Drawing.Size(33, 45);
+            this.ledBulb1.TabIndex = 23;
+            this.ledBulb1.Text = "ledBulb1";
+            // 
             // PCCpro
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1834,7 +1834,7 @@
             this.MinimumSize = new System.Drawing.Size(962, 571);
             this.Name = "PCCpro";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "PiKoder Control Center 3.7.3";
+            this.Text = "PiKoder Control Center 3.7.10";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.PCCpro_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.strCH_7_Neutral)).EndInit();
             this.GroupBox5.ResumeLayout(false);

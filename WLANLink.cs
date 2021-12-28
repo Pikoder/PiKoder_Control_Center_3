@@ -32,7 +32,6 @@ public class WLANLink
     private UdpClient receivingClient;  // Client for handling incxoming data
     private UdpClient sendingClient;    // Client for sending data
     private Thread receivingThread;     // Create a separate thread to listen for incoming data, helps to prevent the form from freezing up
-    private bool closing = false;       // Used to close clients if form is closing
     private bool Connected = false;     // connection status
     private string MessageBuffer = "";
     private bool MessageFullyReceived = false;
@@ -149,9 +148,10 @@ public class WLANLink
         {
             sendingClient.Send(sendbytes, sendbytes.Length);
         }
-        catch (Exception ex)
+        catch
         {
-            // MessageBox.Show(ex.ToString());
+            MessageBox.Show("Unable to write data.",
+            "WLAN Communication Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
@@ -161,9 +161,8 @@ public class WLANLink
         {
             receivingThread.Abort();
         }
-        catch (Exception ex)
+        catch
         {
-            // MessageBox.Show(ex.ToString());
         }
         MessageFullyReceived = false;
         receivingClient.Close();
