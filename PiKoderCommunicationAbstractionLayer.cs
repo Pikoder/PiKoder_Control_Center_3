@@ -20,6 +20,7 @@
 //
 
 using System;
+using System.Windows.Forms;
 
 public class PiKoderCommunicationAbstractionLayer
 {
@@ -75,7 +76,7 @@ public class PiKoderCommunicationAbstractionLayer
         MyForm_Dispose();
     }
 
-    public void GetPulseLength(ref string SerialInputString, int iChannelNo, bool HPMath)
+    public void GetPulseLengthFT(ref string SerialInputString, int iChannelNo, bool HPMath, bool ProtectedSaveMode)
     {
         int timeOut = 0;
         do
@@ -94,11 +95,26 @@ public class PiKoderCommunicationAbstractionLayer
         } while (!ValidatePulseValue(ref SerialInputString, HPMath) & timeOut < 5);
         if (timeOut == 5)
         {
+            if (SerialInputString.Length == 4)
+            {
+                // read numbers, but value not within boundries
+                DialogResult dr = MessageBox.Show("Pulse width for channel " + iChannelNo.ToString() +
+                    " outside of range (" + SerialInputString + "). Reset to default?", "Inconsistent channel value",
+                    MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
+                if (dr == DialogResult.Cancel)
+                {
+                    Environment.Exit(1);
+                }
+                SerialInputString = "1500";
+                SetChannelPulseLength(iChannelNo, "1500");
+                SetPiKoderPreferences(ProtectedSaveMode);
+                return;
+            }
             SerialInputString = "TimeOut";
         }
     }
 
-    public void GetNeutralPosition(ref string SerialInputString, int iChannelNo, bool HPMath)
+    public void GetNeutralPositionFT(ref string SerialInputString, int iChannelNo, bool HPMath, bool ProtectedSaveMode)
     {
         int timeOut = 0;
         do
@@ -117,11 +133,26 @@ public class PiKoderCommunicationAbstractionLayer
         } while (!ValidatePulseValue(ref SerialInputString, HPMath) & timeOut < 5);
         if (timeOut == 5)
         {
+            if (SerialInputString.Length == 4)
+            {
+                // read numbers, but value not within boundries
+                DialogResult dr = MessageBox.Show("Neutral setting for channel " + iChannelNo.ToString() +
+                    " outside of range (" + SerialInputString + "). Reset to default?", "Inconsistent channel value",
+                    MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
+                if (dr == DialogResult.Cancel)
+                {
+                    Environment.Exit(1);
+                }
+                SerialInputString = "1500";
+                SetChannelNeutral("1500", iChannelNo);
+                SetPiKoderPreferences(ProtectedSaveMode);
+                return;
+            }
             SerialInputString = "TimeOut";
         }
     }
 
-    public void GetLowerLimit(ref string SerialInputString, int iChannelNo, bool HPMath)
+    public void GetLowerLimitFT(ref string SerialInputString, int iChannelNo, bool HPMath, bool ProtectedSaveMode)
     {
         int timeOut = 1;
         do
@@ -137,14 +168,29 @@ public class PiKoderCommunicationAbstractionLayer
                 SerialInputString = myWLANLink.Receiver();
             }
             timeOut += 1;
-        } while (!ValidatePulseValue(ref SerialInputString, HPMath));
+        } while (!ValidatePulseValue(ref SerialInputString, HPMath) & timeOut < 5);
         if (timeOut == 5)
         {
+            if (SerialInputString.Length == 4)
+            {
+                // read numbers, but value not within boundries
+                DialogResult dr = MessageBox.Show("Lower limit for channel " + iChannelNo.ToString() +
+                    " outside of range (" + SerialInputString + "). Reset to default?", "Inconsistent channel value",
+                    MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
+                if (dr == DialogResult.Cancel)
+                {
+                    Environment.Exit(1);
+                }
+                SerialInputString = "1000";
+                SetChannelLowerLimit("1000", iChannelNo);
+                SetPiKoderPreferences(ProtectedSaveMode);
+                return;
+            }
             SerialInputString = "TimeOut";
         }
     }
 
-    public void GetUpperLimit(ref string SerialInputString, int iChannelNo, bool HPMath)
+    public void GetUpperLimitFT(ref string SerialInputString, int iChannelNo, bool HPMath, bool ProtectedSaveMode)
     {
         int timeOut = 0;
         do
@@ -163,6 +209,21 @@ public class PiKoderCommunicationAbstractionLayer
         } while (!ValidatePulseValue(ref SerialInputString, HPMath) & timeOut < 5);
         if (timeOut == 5)
         {
+            if (SerialInputString.Length == 4)
+            {
+                // read numbers, but value not within boundries
+                DialogResult dr = MessageBox.Show("Upper limit for channel " + iChannelNo.ToString() +
+                    " outside of range (" + SerialInputString + "). Reset to default?", "Inconsistent channel value",
+                    MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
+                if (dr == DialogResult.Cancel)
+                {
+                    Environment.Exit(1);
+                }
+                SerialInputString = "2000";
+                SetChannelUpperLimit("2000", iChannelNo);
+                SetPiKoderPreferences(ProtectedSaveMode);
+                return;
+            }
             SerialInputString = "TimeOut";
         }
     }
@@ -631,7 +692,17 @@ public class PiKoderCommunicationAbstractionLayer
         {
             return false;
         }
-        double intChannelPulseLength = Double.Parse(strVal);  // no check on chars this time
+        double intChannelPulseLength = 0;
+        try
+        {
+            intChannelPulseLength = Double.Parse(strVal);  // no check on chars this time
+        }
+        catch
+        {
+            // format error, falsche message
+            strVal = "FormatError";
+            return false;
+        }
         if (HPMath)
         {
             if ((intChannelPulseLength < 3750) | (intChannelPulseLength > 11250))

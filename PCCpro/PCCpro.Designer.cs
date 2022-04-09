@@ -100,6 +100,7 @@
             this.saveButton = new System.Windows.Forms.Button();
             this.GroupBox3 = new System.Windows.Forms.GroupBox();
             this.GroupBox2 = new System.Windows.Forms.GroupBox();
+            this.ledBulb1 = new Bulb.LedBulb();
             this.TextBox1 = new System.Windows.Forms.TextBox();
             this.Label13 = new System.Windows.Forms.Label();
             this.Label2 = new System.Windows.Forms.Label();
@@ -130,7 +131,6 @@
             this.frmOuter = new System.Windows.Forms.GroupBox();
             this.ToolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.BlinkTimer = new System.Windows.Forms.Timer(this.components);
-            this.ledBulb1 = new Bulb.LedBulb();
             ((System.ComponentModel.ISupportInitialize)(this.strCH_7_Neutral)).BeginInit();
             this.GroupBox5.SuspendLayout();
             this._Frame2_0.SuspendLayout();
@@ -1239,6 +1239,16 @@
             this.GroupBox2.TabStop = false;
             this.GroupBox2.Text = "Status";
             // 
+            // ledBulb1
+            // 
+            this.ledBulb1.Color = System.Drawing.Color.Red;
+            this.ledBulb1.Location = new System.Drawing.Point(217, 21);
+            this.ledBulb1.Name = "ledBulb1";
+            this.ledBulb1.On = false;
+            this.ledBulb1.Size = new System.Drawing.Size(33, 45);
+            this.ledBulb1.TabIndex = 23;
+            this.ledBulb1.Text = "ledBulb1";
+            // 
             // TextBox1
             // 
             this.TextBox1.Font = new System.Drawing.Font("Arial", 10F, System.Drawing.FontStyle.Bold);
@@ -1806,16 +1816,6 @@
             // 
             this.BlinkTimer.Interval = 1;
             // 
-            // ledBulb1
-            // 
-            this.ledBulb1.Color = System.Drawing.Color.Red;
-            this.ledBulb1.Location = new System.Drawing.Point(217, 21);
-            this.ledBulb1.Name = "ledBulb1";
-            this.ledBulb1.On = false;
-            this.ledBulb1.Size = new System.Drawing.Size(33, 45);
-            this.ledBulb1.TabIndex = 23;
-            this.ledBulb1.Text = "ledBulb1";
-            // 
             // PCCpro
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1834,7 +1834,7 @@
             this.MinimumSize = new System.Drawing.Size(962, 571);
             this.Name = "PCCpro";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "PiKoder Control Center 3.7.10";
+            this.Text = "PiKoder Control Center 3.7.11";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.PCCpro_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.strCH_7_Neutral)).EndInit();
             this.GroupBox5.ResumeLayout(false);

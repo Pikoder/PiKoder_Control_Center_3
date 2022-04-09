@@ -60,7 +60,6 @@ public class SerialLink
             {
                 MessageBox.Show("Could not close " + currentPort + ".",
                 "Serial Communication Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
             }
         }
 

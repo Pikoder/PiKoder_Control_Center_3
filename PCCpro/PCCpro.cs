@@ -65,6 +65,10 @@ namespace PCCpro
             AvailableCOMPorts.Focus();
         }
 
+        public bool GetProtectedSaveMode ()
+        {
+            return ProtectedSaveMode;
+        }
 
         //****************************************************************************
         //   Function:
@@ -654,7 +658,9 @@ namespace PCCpro
             // retrieve TimeOut
             if (TypeId.Text.Contains("SSCe"))
             {
-            } else {
+            } 
+            else 
+            {
                 if (!boolErrorFlag)
                 {
                     myPCAL.GetTimeOut(ref strChannelBuffer);
@@ -685,14 +691,18 @@ namespace PCCpro
                 // retrieve PRO parameters offset
                 if (TypeId.Text == "SSC PRO")
                 {
-                    myPCAL.GetISCBaseAddress(ref strChannelBuffer);
-                    if (strChannelBuffer != "TimeOut")
+                    if (!boolErrorFlag)
                     {
-                        PPM_Channels.Value = int.Parse(strChannelBuffer);
-                        PPM_Channels.ForeColor = Color.Black;
+                        myPCAL.GetISCBaseAddress(ref strChannelBuffer);
+                        if (strChannelBuffer != "TimeOut")
+                        {
+                            PPM_Channels.Value = int.Parse(strChannelBuffer);
+                            PPM_Channels.ForeColor = Color.Black;
+                        }
                     }
                 }
             }
+            // management of error flag missing
             IndicateConnectionOk();
             bDataLoaded = true;
         }
@@ -1477,7 +1487,7 @@ namespace PCCpro
             string strChannelBuffer = "";
             if (!boolErrorFlag)
             {   // retrieve channel value
-                myPCAL.GetPulseLength(ref strChannelBuffer, 1, HPMath);
+                myPCAL.GetPulseLengthFT(ref strChannelBuffer, 1, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     ch1_HScrollBar.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -1490,7 +1500,7 @@ namespace PCCpro
             }
             if (!boolErrorFlag)
             {   // retrieve neutral value
-                myPCAL.GetNeutralPosition(ref strChannelBuffer, 1, HPMath);
+                myPCAL.GetNeutralPositionFT(ref strChannelBuffer, 1, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     strCH_1_Neutral.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -1503,7 +1513,7 @@ namespace PCCpro
             }
             if (!boolErrorFlag)
             {   // retrieve lower limit 
-                myPCAL.GetLowerLimit(ref strChannelBuffer, 1, HPMath);
+                myPCAL.GetLowerLimitFT(ref strChannelBuffer, 1, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     int min = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -1518,7 +1528,7 @@ namespace PCCpro
             }
             if (!boolErrorFlag)
             {   // retrieve upper limit 
-                myPCAL.GetUpperLimit(ref strChannelBuffer, 1, HPMath);
+                myPCAL.GetUpperLimitFT(ref strChannelBuffer, 1, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     int max = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -1557,7 +1567,7 @@ namespace PCCpro
             string strChannelBuffer = "";
             if (!boolErrorFlag)
             {
-                myPCAL.GetPulseLength(ref strChannelBuffer, 2, HPMath);
+                myPCAL.GetPulseLengthFT(ref strChannelBuffer, 2, HPMath, ProtectedSaveMode);
                 {
                     if (strChannelBuffer != "TimeOut")
                     {
@@ -1572,7 +1582,7 @@ namespace PCCpro
             }
             if (!boolErrorFlag)
             {
-                myPCAL.GetNeutralPosition(ref strChannelBuffer, 2, HPMath);
+                myPCAL.GetNeutralPositionFT(ref strChannelBuffer, 2, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     strCH_2_Neutral.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -1585,7 +1595,7 @@ namespace PCCpro
             }
             if (!boolErrorFlag)
             {
-                myPCAL.GetLowerLimit(ref strChannelBuffer, 2, HPMath);
+                myPCAL.GetLowerLimitFT(ref strChannelBuffer, 2, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     int min = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -1600,7 +1610,7 @@ namespace PCCpro
             }
             if (!boolErrorFlag)
             {
-                myPCAL.GetUpperLimit(ref strChannelBuffer, 2, HPMath);
+                myPCAL.GetUpperLimitFT(ref strChannelBuffer, 2, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     int max = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -1638,7 +1648,7 @@ namespace PCCpro
             string strChannelBuffer = "";
             if (!boolErrorFlag)
             {
-                myPCAL.GetPulseLength(ref strChannelBuffer, 3, HPMath);
+                myPCAL.GetPulseLengthFT(ref strChannelBuffer, 3, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     ch3_HScrollBar.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -1651,7 +1661,7 @@ namespace PCCpro
             }
             if (!boolErrorFlag)
             {
-                myPCAL.GetNeutralPosition(ref strChannelBuffer, 3, HPMath);
+                myPCAL.GetNeutralPositionFT(ref strChannelBuffer, 3, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     strCH_3_Neutral.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -1664,7 +1674,7 @@ namespace PCCpro
             }
             if (!boolErrorFlag)
             {
-                myPCAL.GetLowerLimit(ref strChannelBuffer, 3, HPMath);
+                myPCAL.GetLowerLimitFT(ref strChannelBuffer, 3, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     int min = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -1679,7 +1689,7 @@ namespace PCCpro
             }
             if (!boolErrorFlag)
             {
-                myPCAL.GetUpperLimit(ref strChannelBuffer, 3, HPMath);
+                myPCAL.GetUpperLimitFT(ref strChannelBuffer, 3, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     int max = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -1716,7 +1726,7 @@ namespace PCCpro
             string strChannelBuffer = "";
             if (!boolErrorFlag)
             {
-                myPCAL.GetPulseLength(ref strChannelBuffer, 4, HPMath);
+                myPCAL.GetPulseLengthFT(ref strChannelBuffer, 4, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     ch4_HScrollBar.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -1729,7 +1739,7 @@ namespace PCCpro
             }
             if (!boolErrorFlag)
             {
-                myPCAL.GetNeutralPosition(ref strChannelBuffer, 4, HPMath);
+                myPCAL.GetNeutralPositionFT(ref strChannelBuffer, 4, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     strCH_4_Neutral.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -1742,7 +1752,7 @@ namespace PCCpro
             }
             if (!boolErrorFlag)
             {
-                myPCAL.GetLowerLimit(ref strChannelBuffer, 4, HPMath);
+                myPCAL.GetLowerLimitFT(ref strChannelBuffer, 4, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     int min = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -1757,7 +1767,7 @@ namespace PCCpro
             }
             if (!boolErrorFlag)
             {
-                myPCAL.GetUpperLimit(ref strChannelBuffer, 4, HPMath);
+                myPCAL.GetUpperLimitFT(ref strChannelBuffer, 4, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     int max = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -1795,7 +1805,7 @@ namespace PCCpro
             string strChannelBuffer = "";
             if (!boolErrorFlag)
             {
-                myPCAL.GetPulseLength(ref strChannelBuffer, 5, HPMath);
+                myPCAL.GetPulseLengthFT(ref strChannelBuffer, 5, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     ch5_HScrollBar.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -1808,7 +1818,7 @@ namespace PCCpro
             }
             if (!boolErrorFlag)
             {
-                myPCAL.GetNeutralPosition(ref strChannelBuffer, 5, HPMath);
+                myPCAL.GetNeutralPositionFT(ref strChannelBuffer, 5, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     strCH_5_Neutral.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -1821,7 +1831,7 @@ namespace PCCpro
             }
             if (!boolErrorFlag)
             {
-                myPCAL.GetLowerLimit(ref strChannelBuffer, 5, HPMath);
+                myPCAL.GetLowerLimitFT(ref strChannelBuffer, 5, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     int min = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -1836,7 +1846,7 @@ namespace PCCpro
             }
             if (!boolErrorFlag)
             {
-                myPCAL.GetUpperLimit(ref strChannelBuffer, 5, HPMath);
+                myPCAL.GetUpperLimitFT(ref strChannelBuffer, 5, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     int max = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -1874,7 +1884,7 @@ namespace PCCpro
             string strChannelBuffer = "";
             if (!boolErrorFlag)
             {
-                myPCAL.GetPulseLength(ref strChannelBuffer, 6, HPMath);
+                myPCAL.GetPulseLengthFT(ref strChannelBuffer, 6, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     ch6_HScrollBar.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -1887,7 +1897,7 @@ namespace PCCpro
             }
             if (!boolErrorFlag)
             {
-                myPCAL.GetNeutralPosition(ref strChannelBuffer, 6, HPMath);
+                myPCAL.GetNeutralPositionFT(ref strChannelBuffer, 6, HPMath,ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     strCH_6_Neutral.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -1900,7 +1910,7 @@ namespace PCCpro
             }
             if (!boolErrorFlag)
             {
-                myPCAL.GetLowerLimit(ref strChannelBuffer, 6, HPMath);
+                myPCAL.GetLowerLimitFT(ref strChannelBuffer, 6, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     int min = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -1915,7 +1925,7 @@ namespace PCCpro
             }
             if (!boolErrorFlag)
             {
-                myPCAL.GetUpperLimit(ref strChannelBuffer, 6, HPMath);
+                myPCAL.GetUpperLimitFT(ref strChannelBuffer, 6, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     int max = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -1953,7 +1963,7 @@ namespace PCCpro
             string strChannelBuffer = "";
             if (!boolErrorFlag)
             {
-                myPCAL.GetPulseLength(ref strChannelBuffer, 7, HPMath);
+                myPCAL.GetPulseLengthFT(ref strChannelBuffer, 7, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
 
@@ -1967,7 +1977,7 @@ namespace PCCpro
             }
             if (!boolErrorFlag)
             {
-                myPCAL.GetNeutralPosition(ref strChannelBuffer, 7, HPMath);
+                myPCAL.GetNeutralPositionFT(ref strChannelBuffer, 7, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     strCH_7_Neutral.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -1980,7 +1990,7 @@ namespace PCCpro
             }
             if (!boolErrorFlag)
             {
-                myPCAL.GetLowerLimit(ref strChannelBuffer, 7, HPMath);
+                myPCAL.GetLowerLimitFT(ref strChannelBuffer, 7, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     int min = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -1995,7 +2005,7 @@ namespace PCCpro
             }
             if (!boolErrorFlag)
             {
-                myPCAL.GetUpperLimit(ref strChannelBuffer, 7, HPMath);
+                myPCAL.GetUpperLimitFT(ref strChannelBuffer, 7, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     int max = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -2033,7 +2043,7 @@ namespace PCCpro
             string strChannelBuffer = "";
             if (!boolErrorFlag)
             {
-                myPCAL.GetPulseLength(ref strChannelBuffer, 8, HPMath);
+                myPCAL.GetPulseLengthFT(ref strChannelBuffer, 8, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     ch8_HScrollBar.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -2046,7 +2056,7 @@ namespace PCCpro
             }
             if (!boolErrorFlag)
             {
-                myPCAL.GetNeutralPosition(ref strChannelBuffer, 8, HPMath);
+                myPCAL.GetNeutralPositionFT(ref strChannelBuffer, 8, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     strCH_8_Neutral.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -2059,7 +2069,7 @@ namespace PCCpro
             }
             if (!boolErrorFlag)
             {
-                myPCAL.GetLowerLimit(ref strChannelBuffer, 8, HPMath);
+                myPCAL.GetLowerLimitFT(ref strChannelBuffer, 8, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     int min = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -2074,7 +2084,7 @@ namespace PCCpro
             }
             if (!boolErrorFlag)
             {
-                myPCAL.GetUpperLimit(ref strChannelBuffer, 8, HPMath);
+                myPCAL.GetUpperLimitFT(ref strChannelBuffer, 8, HPMath, ProtectedSaveMode);
                 if (strChannelBuffer != "TimeOut")
                 {
                     int max = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -2453,7 +2463,7 @@ namespace PCCpro
 
                 if (!boolErrorFlag)
                 {   // retrieve channel value
-                    myPCAL.GetPulseLength(ref strChannelBuffer, 1, HPMath);
+                    myPCAL.GetPulseLengthFT(ref strChannelBuffer, 1, HPMath, ProtectedSaveMode);
                     if (strChannelBuffer != "TimeOut")
                     {
                         ch1_HScrollBar.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -2489,7 +2499,7 @@ namespace PCCpro
 
                 if (!boolErrorFlag)
                 {
-                    myPCAL.GetPulseLength(ref strChannelBuffer, 2, HPMath);
+                    myPCAL.GetPulseLengthFT(ref strChannelBuffer, 2, HPMath, ProtectedSaveMode);
                     if (strChannelBuffer != "TimeOut")
                     {
                         ch2_HScrollBar.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -2526,7 +2536,7 @@ namespace PCCpro
 
                 if (!boolErrorFlag)
                 {
-                    myPCAL.GetPulseLength(ref strChannelBuffer, 3, HPMath);
+                    myPCAL.GetPulseLengthFT(ref strChannelBuffer, 3, HPMath, ProtectedSaveMode);
                     if (strChannelBuffer != "TimeOut")
                     {
                         ch3_HScrollBar.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -2563,7 +2573,7 @@ namespace PCCpro
 
                 if (!boolErrorFlag)
                 {
-                    myPCAL.GetPulseLength(ref strChannelBuffer, 4, HPMath);
+                    myPCAL.GetPulseLengthFT(ref strChannelBuffer, 4, HPMath, ProtectedSaveMode);
                     if (strChannelBuffer != "TimeOut")
                     {
                         ch4_HScrollBar.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -2600,7 +2610,7 @@ namespace PCCpro
 
                 if (!boolErrorFlag)
                 {
-                    myPCAL.GetPulseLength(ref strChannelBuffer, 5, HPMath);
+                    myPCAL.GetPulseLengthFT(ref strChannelBuffer, 5, HPMath, ProtectedSaveMode);
                     if (strChannelBuffer != "TimeOut")
                     {
                         ch5_HScrollBar.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -2637,7 +2647,7 @@ namespace PCCpro
 
                 if (!boolErrorFlag)
                 {
-                    myPCAL.GetPulseLength(ref strChannelBuffer, 6, HPMath);
+                    myPCAL.GetPulseLengthFT(ref strChannelBuffer, 6, HPMath, ProtectedSaveMode);
                     if (strChannelBuffer != "TimeOut")
                     {
                         ch6_HScrollBar.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -2674,7 +2684,7 @@ namespace PCCpro
 
                 if (!boolErrorFlag)
                 {
-                    myPCAL.GetPulseLength(ref strChannelBuffer, 7, HPMath);
+                    myPCAL.GetPulseLengthFT(ref strChannelBuffer, 7, HPMath, ProtectedSaveMode);
                     if (strChannelBuffer != "TimeOut")
                     {
                         ch7_HScrollBar.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -2711,7 +2721,7 @@ namespace PCCpro
 
                 if (!boolErrorFlag)
                 {
-                    myPCAL.GetPulseLength(ref strChannelBuffer, 8, HPMath);
+                    myPCAL.GetPulseLengthFT(ref strChannelBuffer, 8, HPMath, ProtectedSaveMode);
                     if (strChannelBuffer != "TimeOut")
                     {
                         ch8_HScrollBar.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -2833,7 +2843,7 @@ namespace PCCpro
                     GroupBox11.Text = "startup";     // neutral positions
                     if (!boolErrorFlag)
                     {   // retrieve neutral value
-                        myPCAL.GetNeutralPosition(ref strChannelBuffer, 1, HPMath);
+                        myPCAL.GetNeutralPositionFT(ref strChannelBuffer, 1, HPMath, ProtectedSaveMode);
                         if (strChannelBuffer != "TimeOut")
                         {
                             strCH_1_Neutral.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -2870,7 +2880,7 @@ namespace PCCpro
 
                     if (!boolErrorFlag)
                     {   // retrieve neutral value
-                        myPCAL.GetNeutralPosition(ref strChannelBuffer, 2, HPMath);
+                        myPCAL.GetNeutralPositionFT(ref strChannelBuffer, 2, HPMath, ProtectedSaveMode);
                         if (strChannelBuffer != "TimeOut")
                         {
                             strCH_2_Neutral.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -2907,7 +2917,7 @@ namespace PCCpro
 
                     if (!boolErrorFlag)
                     {   // retrieve neutral value
-                        myPCAL.GetNeutralPosition(ref strChannelBuffer, 3, HPMath);
+                        myPCAL.GetNeutralPositionFT(ref strChannelBuffer, 3, HPMath, ProtectedSaveMode);
                         if (strChannelBuffer != "TimeOut")
                         {
                             strCH_3_Neutral.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -2944,7 +2954,7 @@ namespace PCCpro
 
                     if (!boolErrorFlag)
                     {   // retrieve neutral value
-                        myPCAL.GetNeutralPosition(ref strChannelBuffer, 4, HPMath);
+                        myPCAL.GetNeutralPositionFT(ref strChannelBuffer, 4, HPMath, ProtectedSaveMode);
                         if (strChannelBuffer != "TimeOut")
                         {
                             strCH_4_Neutral.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -2981,7 +2991,7 @@ namespace PCCpro
 
                     if (!boolErrorFlag)
                     {   // retrieve neutral value
-                        myPCAL.GetNeutralPosition(ref strChannelBuffer, 5, HPMath);
+                        myPCAL.GetNeutralPositionFT(ref strChannelBuffer, 5, HPMath, ProtectedSaveMode);
                         if (strChannelBuffer != "TimeOut")
                         {
                             strCH_5_Neutral.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -3018,7 +3028,7 @@ namespace PCCpro
 
                     if (!boolErrorFlag)
                     {   // retrieve neutral value
-                        myPCAL.GetNeutralPosition(ref strChannelBuffer, 6, HPMath);
+                        myPCAL.GetNeutralPositionFT(ref strChannelBuffer, 6, HPMath, ProtectedSaveMode);
                         if (strChannelBuffer != "TimeOut")
                         {
                             strCH_6_Neutral.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -3055,7 +3065,7 @@ namespace PCCpro
 
                     if (!boolErrorFlag)
                     {   // retrieve neutral value
-                        myPCAL.GetNeutralPosition(ref strChannelBuffer, 7, HPMath);
+                        myPCAL.GetNeutralPositionFT(ref strChannelBuffer, 7, HPMath, ProtectedSaveMode);
                         if (strChannelBuffer != "TimeOut")
                         {
                             strCH_7_Neutral.Value = ScalePulseWidth(strChannelBuffer, HPMath);
@@ -3092,7 +3102,7 @@ namespace PCCpro
 
                     if (!boolErrorFlag)
                     {   // retrieve neutral value
-                        myPCAL.GetNeutralPosition(ref strChannelBuffer, 8, HPMath);
+                        myPCAL.GetNeutralPositionFT(ref strChannelBuffer, 8, HPMath, ProtectedSaveMode);
                         if (strChannelBuffer != "TimeOut")
                         {
                             strCH_8_Neutral.Value = ScalePulseWidth(strChannelBuffer, HPMath);
