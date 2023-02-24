@@ -72,8 +72,8 @@
             this.Timer1 = new System.Windows.Forms.Timer(this.components);
             this.PPM_Channels = new System.Windows.Forms.NumericUpDown();
             this.GroupBox13 = new System.Windows.Forms.GroupBox();
-            this.PPM_Mode = new System.Windows.Forms.ListBox();
             this.GroupBox17 = new System.Windows.Forms.GroupBox();
+            this.PPM_Mode = new System.Windows.Forms.DomainUpDown();
             this.tHeartBeat = new System.Windows.Forms.Timer(this.components);
             this.GroupBox6 = new System.Windows.Forms.GroupBox();
             this.GroupBox8 = new System.Windows.Forms.GroupBox();
@@ -838,17 +838,6 @@
             this.GroupBox13.TabStop = false;
             this.GroupBox13.Text = "PPM-Channels";
             // 
-            // PPM_Mode
-            // 
-            this.PPM_Mode.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Bold);
-            this.PPM_Mode.FormattingEnabled = true;
-            this.PPM_Mode.ItemHeight = 19;
-            this.PPM_Mode.Location = new System.Drawing.Point(10, 25);
-            this.PPM_Mode.Name = "PPM_Mode";
-            this.PPM_Mode.Size = new System.Drawing.Size(154, 23);
-            this.PPM_Mode.TabIndex = 1;
-            this.PPM_Mode.SelectedIndexChanged += new System.EventHandler(this.PPM_Mode_SelectedIndexChanged);
-            // 
             // GroupBox17
             // 
             this.GroupBox17.BackColor = System.Drawing.SystemColors.Control;
@@ -863,6 +852,16 @@
             this.GroupBox17.TabIndex = 30;
             this.GroupBox17.TabStop = false;
             this.GroupBox17.Text = "PPM-Mode";
+            // 
+            // PPM_Mode
+            // 
+            this.PPM_Mode.Items.Add("positive");
+            this.PPM_Mode.Items.Add("negative (Futaba)");
+            this.PPM_Mode.Location = new System.Drawing.Point(11, 24);
+            this.PPM_Mode.Name = "PPM_Mode";
+            this.PPM_Mode.Size = new System.Drawing.Size(153, 26);
+            this.PPM_Mode.TabIndex = 0;
+            this.PPM_Mode.SelectedItemChanged += new System.EventHandler(this.PPM_Mode_SelectedItemChanged);
             // 
             // tHeartBeat
             // 
@@ -1834,7 +1833,7 @@
             this.MinimumSize = new System.Drawing.Size(962, 571);
             this.Name = "PCCpro";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "PiKoder Control Center 3.7.11";
+            this.Text = "PiKoder Control Center 3.7.12";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.PCCpro_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.strCH_7_Neutral)).EndInit();
             this.GroupBox5.ResumeLayout(false);
@@ -1944,7 +1943,6 @@
         internal System.Windows.Forms.Timer Timer1;
         internal System.Windows.Forms.NumericUpDown PPM_Channels;
         public System.Windows.Forms.GroupBox GroupBox13;
-        internal System.Windows.Forms.ListBox PPM_Mode;
         public System.Windows.Forms.GroupBox GroupBox17;
         public System.Windows.Forms.Timer tHeartBeat;
         public System.Windows.Forms.GroupBox GroupBox6;
@@ -2003,6 +2001,7 @@
         public System.Windows.Forms.TextBox ConnectedAP;
         public System.Windows.Forms.TextBox espFW;
         internal System.Windows.Forms.Label label1;
+        private System.Windows.Forms.DomainUpDown PPM_Mode;
     }
 }
 

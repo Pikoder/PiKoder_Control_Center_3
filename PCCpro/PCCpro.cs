@@ -1445,19 +1445,6 @@ namespace PCCpro
             }
         }
 
-        private void PPM_Mode_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (bDataLoaded)
-            {
-                if (PPM_Mode.SelectedIndex >= 0)
-                {
-                    myPCAL.SetPiKoderPPMSettings(Convert.ToInt32(PPM_Channels.Value), PPM_Mode.SelectedIndex);
-                    PPMmode = PPM_Mode.SelectedIndex;
-                    PPM_Mode.ClearSelected();
-                }
-            }
-        }
-
         private int ScalePulseWidth(string strChannelBuffer, bool HPMath)
         {
             if (HPMath)
@@ -2424,7 +2411,7 @@ namespace PCCpro
                     if (strChannelBuffer != "TimeOut")
                     {
                         strSSC_Firmware.Text = strChannelBuffer;
-                        if (Double.Parse(strChannelBuffer, CultureInfo.InvariantCulture) > 2.04)
+                        if (Double.Parse(strChannelBuffer, CultureInfo.InvariantCulture) > 2.05)
                         {
                             MessageBox.Show("The PiKoder firmware version found is not supported! Please goto www.pikoder.com and upgrade PCC Control Center to the latest version.", "Error Message", MessageBoxButtons.OK);
                             Application.Exit();
@@ -2757,78 +2744,46 @@ namespace PCCpro
                 }
 
                 // set min & max information for all channels
-                strCH_1_Min.Value = iDefaultMinValue;
+
+                SetDefaultChannelValuesAndGreyOut(strCH_1_Min, iDefaultMinValue);
+                SetDefaultChannelValuesAndGreyOut(strCH_1_Max, iDefaultMaxValue);
                 ch1_HScrollBar.Minimum = iDefaultMinValue;
-                strCH_1_Min.ForeColor = Color.LightGray;
-                strCH_1_Min.Enabled = false;
-                strCH_1_Max.Value = iDefaultMaxValue;
                 ch1_HScrollBar.Maximum = iDefaultMaxValue;
-                strCH_1_Max.ForeColor = Color.LightGray;
-                strCH_1_Max.Enabled = false;
 
-                strCH_2_Min.Value = iDefaultMinValue;
+                SetDefaultChannelValuesAndGreyOut(strCH_2_Min, iDefaultMinValue);
+                SetDefaultChannelValuesAndGreyOut(strCH_2_Max, iDefaultMaxValue);
                 ch2_HScrollBar.Minimum = iDefaultMinValue;
-                strCH_2_Min.ForeColor = Color.LightGray;
-                strCH_2_Min.Enabled = false;
-                strCH_2_Max.Value = iDefaultMaxValue;
                 ch2_HScrollBar.Maximum = iDefaultMaxValue;
-                strCH_2_Max.ForeColor = Color.LightGray;
-                strCH_2_Max.Enabled = false;
 
-                strCH_3_Min.Value = iDefaultMinValue;
+                SetDefaultChannelValuesAndGreyOut(strCH_3_Min, iDefaultMinValue);
+                SetDefaultChannelValuesAndGreyOut(strCH_3_Max, iDefaultMaxValue);
                 ch3_HScrollBar.Minimum = iDefaultMinValue;
-                strCH_3_Min.ForeColor = Color.LightGray;
-                strCH_3_Min.Enabled = false;
-                strCH_3_Max.Value = iDefaultMaxValue;
                 ch3_HScrollBar.Maximum = iDefaultMaxValue;
-                strCH_3_Max.ForeColor = Color.LightGray;
-                strCH_3_Max.Enabled = false;
 
-                strCH_4_Min.Value = iDefaultMinValue;
+                SetDefaultChannelValuesAndGreyOut(strCH_4_Min, iDefaultMinValue);
+                SetDefaultChannelValuesAndGreyOut(strCH_4_Max, iDefaultMaxValue);
                 ch4_HScrollBar.Minimum = iDefaultMinValue;
-                strCH_4_Min.ForeColor = Color.LightGray;
-                strCH_4_Min.Enabled = false;
-                strCH_4_Max.Value = iDefaultMaxValue;
                 ch4_HScrollBar.Maximum = iDefaultMaxValue;
-                strCH_4_Max.ForeColor = Color.LightGray;
-                strCH_4_Max.Enabled = false;
 
-                strCH_5_Min.Value = iDefaultMinValue;
+                SetDefaultChannelValuesAndGreyOut(strCH_5_Min, iDefaultMinValue);
+                SetDefaultChannelValuesAndGreyOut(strCH_5_Max, iDefaultMaxValue);
                 ch5_HScrollBar.Minimum = iDefaultMinValue;
-                strCH_5_Min.ForeColor = Color.LightGray;
-                strCH_5_Min.Enabled = false;
-                strCH_5_Max.Value = iDefaultMaxValue;
                 ch5_HScrollBar.Maximum = iDefaultMaxValue;
-                strCH_5_Max.ForeColor = Color.LightGray;
-                strCH_5_Max.Enabled = false;
 
-                strCH_6_Min.Value = iDefaultMinValue;
+                SetDefaultChannelValuesAndGreyOut(strCH_6_Min, iDefaultMinValue);
+                SetDefaultChannelValuesAndGreyOut(strCH_6_Max, iDefaultMaxValue);
                 ch6_HScrollBar.Minimum = iDefaultMinValue;
-                strCH_6_Min.ForeColor = Color.LightGray;
-                strCH_6_Min.Enabled = false;
-                strCH_6_Max.Value = iDefaultMaxValue;
                 ch6_HScrollBar.Maximum = iDefaultMaxValue;
-                strCH_6_Max.ForeColor = Color.LightGray;
-                strCH_6_Max.Enabled = false;
 
-                strCH_7_Min.Value = iDefaultMinValue;
+                SetDefaultChannelValuesAndGreyOut(strCH_7_Min, iDefaultMinValue);
+                SetDefaultChannelValuesAndGreyOut(strCH_7_Max, iDefaultMaxValue);
                 ch7_HScrollBar.Minimum = iDefaultMinValue;
-                strCH_7_Min.ForeColor = Color.LightGray;
-                strCH_7_Min.Enabled = false;
-                strCH_7_Max.Value = iDefaultMaxValue;
                 ch7_HScrollBar.Maximum = iDefaultMaxValue;
-                strCH_7_Max.ForeColor = Color.LightGray;
-                strCH_7_Max.Enabled = false;
 
-                strCH_8_Min.Value = iDefaultMinValue;
+                SetDefaultChannelValuesAndGreyOut(strCH_8_Min, iDefaultMinValue);
+                SetDefaultChannelValuesAndGreyOut(strCH_8_Max, iDefaultMaxValue);
                 ch8_HScrollBar.Minimum = iDefaultMinValue;
-                strCH_8_Min.ForeColor = Color.LightGray;
-                strCH_8_Min.Enabled = false;
-                strCH_8_Max.Value = iDefaultMaxValue;
                 ch8_HScrollBar.Maximum = iDefaultMaxValue;
-                strCH_8_Max.ForeColor = Color.LightGray;
-                strCH_8_Max.Enabled = false;
-
 
                 if (!bUART2PPM_StartUpValues)
                 {
@@ -3230,15 +3185,33 @@ namespace PCCpro
 
             PPM_Channels.ForeColor = Color.Black;
             PPM_Mode.ForeColor = Color.Black;
-            PPM_Mode.ClearSelected();
             bDataLoaded = true;
             IndicateConnectionOk();
+        }
+
+        private void SetDefaultChannelValuesAndGreyOut(NumericUpDown numericUpDown, int iDefaultValue)
+        {
+            numericUpDown.Value = iDefaultMinValue;
+            numericUpDown.ForeColor = Color.LightGray;
+            numericUpDown.Enabled = false;
         }
 
         private void PCCpro_FormClosing(Object sender, FormClosingEventArgs e)
         {
         }
 
+        private void PPM_Mode_SelectedItemChanged(object sender, EventArgs e)
+        {
+            if (bDataLoaded)
+            {
+                if (PPM_Mode.SelectedIndex >= 0)
+                {
+                    myPCAL.SetPiKoderPPMSettings(Convert.ToInt32(PPM_Channels.Value), PPM_Mode.SelectedIndex);
+                    PPMmode = PPM_Mode.SelectedIndex;
+                }
+            }
+
+        }
     }
 
     public class GlobalDebug 
